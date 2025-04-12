@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haibit v4 - Editor Mejorado y Preview Corregida</title>
+    <meta name="description" content="Haibit v4 - Wiki con editor potente, preview corregida y soporte HTML/Markdown.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script>
+        tailwind.config = {
+            // Misma configuración de theme que v2/v3
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', '"Noto Sans"', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"', '"Noto Color Emoji"'], },
+                    colors: { 'haibit-blue': { '100': '#E0F2FE', '500': '#0EA5E9', '600': '#0284C7', '700': '#0369A1' }, 'haibit-gray': { '50': '#F9FAFB', '100': '#F3F4F6', '200': '#E5E7EB', '300': '#D1D5DB', '400': '#9CA3AF', '500': '#6B7280', '600': '#4B5563', '700': '#374151', '800': '#1F2937', '900': '#111827' } },
+                    boxShadow: { 'fluffy': '0 4px 15px rgba(0, 0, 0, 0.05)', 'fluffy-lg': '0 10px 30px rgba(0, 0, 0, 0.07)', },
+                    borderRadius: { 'xl': '0.75rem', '2xl': '1rem', '3xl': '1.5rem', }
+                }
+            },
+        }
+    </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/material-darker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/dialog/dialog.min.css">
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" />
+
+
+    <style>
+    	.lacandona-wiki-content {
+    /* Contenedor principal */
+    line-height: 1.7;
+    font-size: 1.05em;
+    color: #374151; /* gray-700 */
+  }
+
+  .lacandona-wiki-content h1 {
+    /* Título principal */
+    font-size: 2.5em;
+    font-weight: 700;
+    color: #111827; /* gray-900 */
+    margin-bottom: 0.5em;
+    border-bottom: 2px solid #f3f4f6; /* gray-100 */
+    padding-bottom: 0.3em;
+  }
+
+   /* Estilo para subtítulos */
+   .lacandona-wiki-content h2 {
+    font-size: 1.8em;
+    font-weight: 600;
+    color: #1f2937; /* gray-800 */
+    margin-top: 1.5em; /* Espacio antes del subtítulo */
+    margin-bottom: 0.6em;
+    border-bottom: 1px solid #e5e7eb; /* gray-200 */
+    padding-bottom: 0.2em;
+   }
+
+   .lacandona-wiki-content p {
+     /* Párrafos */
+     margin-bottom: 1.3em;
+   }
+
+   .lacandona-wiki-content strong {
+     /* Texto resaltado */
+     color: #1f2937; /* gray-800 */
+     font-weight: 600; /* Un poco más de peso */
+   }
+
+   .lacandona-wiki-content em {
+     /* Cursiva */
+     color: #047857; /* emerald-700 - un toque de verde */
+   }
+
+    /* Estilos para listas */
+   .lacandona-wiki-content ul {
+       list-style: disc; /* Estilo de viñeta estándar */
+       margin-left: 1.5em; /* Indentación */
+       margin-bottom: 1.3em; /* Espacio después de la lista */
+   }
+    .lacandona-wiki-content li {
+       margin-bottom: 0.5em; /* Espacio entre elementos de la lista */
+    }
+
+  /* --- ESTILOS PARA LA IMAGEN CON EFECTO BLUR Y TEXTO --- */
+  .image-container-lacandona {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    margin-top: 1.5em;
+    margin-bottom: 2em;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  }
+
+  .lacandona-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    vertical-align: middle;
+  }
+
+  .blur-overlay-lacandona {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50%; /* Un poco más alto para texto extenso */
+    /* Verde oscuro semitransparente para la selva */
+    background-color: rgba(10, 50, 10, 0.55);
+    -webkit-backdrop-filter: blur(9px); /* Un poco más de blur */
+    backdrop-filter: blur(9px);
+    padding: 20px 25px;
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: background-color 0.3s ease;
+  }
+
+  .overlay-text-lacandona {
+    color: #ffffff;
+    font-size: 0.95em;
+    line-height: 1.5;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9), 0 0 5px rgba(0, 0, 0, 0.7);
+    height: 100%;
+    overflow-y: auto; /* Scroll si el texto es largo */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.3) rgba(0,0,0,0.1);
+  }
+   /* Scrollbar Webkit */
+  .overlay-text-lacandona::-webkit-scrollbar { width: 6px; }
+  .overlay-text-lacandona::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 3px;}
+  .overlay-text-lacandona::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.3); border-radius: 3px; border: 1px solid rgba(0,0,0,0.1); }
+    	.backrooms-wiki-content {
+    /* Contenedor principal para el contenido de esta wiki */
+    line-height: 1.7; /* Mejora legibilidad del texto general */
+    font-size: 1.05em; /* Ligeramente más grande */
+    color: #374151; /* gray-700 - Color de texto base */
+  }
+
+  .backrooms-wiki-content h1 {
+    /* Estilo para el título principal */
+    font-size: 2.5em;
+    font-weight: 700;
+    color: #111827; /* gray-900 */
+    margin-bottom: 0.5em;
+    border-bottom: 2px solid #f3f4f6; /* gray-100 */
+    padding-bottom: 0.3em;
+  }
+
+   .backrooms-wiki-content p {
+     /* Párrafos con un poco más de margen inferior */
+     margin-bottom: 1.3em;
+   }
+
+   .backrooms-wiki-content strong {
+     /* Resaltar texto importante */
+     color: #1f2937; /* gray-800 */
+   }
+
+  /* --- ESTILOS PARA LA IMAGEN CON EFECTO BLUR Y TEXTO --- */
+  .image-container-backrooms {
+    position: relative; /* Necesario para posicionar el overlay */
+    overflow: hidden; /* Asegura que nada se salga */
+    border-radius: 12px; /* Esquinas redondeadas más suaves */
+    margin-top: 1.5em;
+    margin-bottom: 2em;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* Sombra suave */
+  }
+
+  .backrooms-image {
+    display: block; /* Evita espacio extra bajo la imagen */
+    width: 100%;
+    height: auto; /* Mantiene la proporción */
+    vertical-align: middle; /* Alineación por si acaso */
+  }
+
+  .blur-overlay-backrooms {
+    position: absolute; /* Se posiciona sobre la imagen */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 45%; /* Cubre el 45% inferior */
+    background-color: rgba(0, 0, 0, 0.35); /* Fondo semitransparente oscuro */
+    -webkit-backdrop-filter: blur(8px); /* Desenfoque para navegadores Webkit */
+    backdrop-filter: blur(8px); /* Desenfoque estándar */
+    padding: 20px 25px; /* Espacio interno para el texto */
+    box-sizing: border-box; /* Padding incluido en el height/width */
+    overflow: hidden; /* Evita que el texto se desborde */
+
+    /* Transición suave por si acaso */
+    transition: background-color 0.3s ease;
+  }
+
+  .overlay-text-backrooms {
+    color: #ffffff; /* Texto blanco */
+    font-size: 0.95em;
+    line-height: 1.5;
+    /* Sombra de texto negra para MÁXIMA legibilidad */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9), 0 0 5px rgba(0, 0, 0, 0.7);
+    height: 100%; /* Ocupa toda la altura del overlay */
+    overflow-y: auto; /* Scroll si el texto es MUY largo (mejor que desbordar) */
+
+     /* Scrollbar sutil dentro del overlay (opcional) */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.3) rgba(0,0,0,0.1);
+  }
+   /* Estilo para scrollbar en Webkit */
+  .overlay-text-backrooms::-webkit-scrollbar { width: 6px; }
+  .overlay-text-backrooms::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 3px;}
+  .overlay-text-backrooms::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.3); border-radius: 3px; border: 1px solid rgba(0,0,0,0.1); }
+        /* --- ESTILOS GENERALES Y FLUFFY --- */
+        html { scroll-behavior: smooth; }
+        body { background-color: #F9FAFB; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; color: #374151; /* gray-700 */ }
+        .view-hidden { display: none !important; }
+        .view-visible { display: flex !important; }
+
+        /* --- PFP Selector --- */
+        #pfp-selector { width: 40px; height: 40px; border-radius: 50%; background-color: #E5E7EB; background-size: cover; background-position: center; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        #pfp-selector:hover { border-color: #0EA5E9; }
+        #pfp-selector svg { color: #9CA3AF; width: 20px; height: 20px; transition: opacity 0.2s ease; }
+        #pfp-selector[style*="background-image"] svg { opacity: 0; }
+
+        /* --- EDITOR (CodeMirror + Toolbar) --- */
+        .CodeMirror { border: 1px solid #D1D5DB; border-radius: 0 0 0.75rem 0.75rem; /* rounded-b-xl */ height: auto; min-height: 450px; /* Más alto */ font-size: 14px; /* Ligeramente más grande */ line-height: 1.6; flex-grow: 1; }
+        /* Placeholder style for CodeMirror */
+        .CodeMirror-placeholder { color: #9CA3AF !important; /* gray-400 */ }
+        /* Active line style */
+        .CodeMirror-activeline-background { background-color: rgba(255, 255, 255, 0.08) !important; } /* Sutil en tema oscuro */
+
+        #editor-toolbar { background-color: #F3F4F6; border: 1px solid #D1D5DB; border-bottom: none; padding: 6px 10px; border-radius: 0.75rem 0.75rem 0 0; /* rounded-t-xl */ display: flex; gap: 6px; flex-wrap: wrap; }
+        #editor-toolbar button { background-color: #fff; border: 1px solid #D1D5DB; padding: 5px; border-radius: 6px; cursor: pointer; color: #4B5563; transition: all 0.15s ease-in-out; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+        #editor-toolbar button:hover { background-color: #E0F2FE; /* blue-100 */ border-color: #7DD3FC; /* blue-300 */ color: #0369A1; /* blue-700 */ }
+        #editor-toolbar button:active { background-color: #BAE6FD; /* blue-200 */ box-shadow: none; transform: translateY(1px); }
+        #editor-toolbar button svg { width: 18px; height: 18px; display: block; }
+        #editor-toolbar .toolbar-separator { width: 1px; background-color: #D1D5DB; margin: 0 4px; }
+
+        /* ---  CONTENIDO RENDERIZADO (PREVIEW / DETAIL) - ESTILOS EXPLÍCITOS  --- */
+        .rendered-content {
+            background-color: white;
+            padding: 1.5rem 2rem; /* Más padding */
+            border-radius: 0.75rem; /* rounded-xl */
+            border: 1px solid #E5E7EB; /* gray-200 */
+            box-shadow: var(--tw-shadow-fluffy);
+            overflow-y: auto; /* Scroll si es necesario */
+            max-height: 75vh;
+            font-size: 16px; /* Base font size */
+            line-height: 1.7; /* Interlineado generoso */
+            color: #374151; /* gray-700 */
+        }
+        /* Resetear margen del primer elemento */
+        .rendered-content > :first-child { margin-top: 0 !important; }
+        /* Resetear margen del último elemento */
+        .rendered-content > :last-child { margin-bottom: 0 !important; }
+
+        /* Espaciado Vertical CONSISTENTE entre elementos de bloque */
+        .rendered-content h1, .rendered-content h2, .rendered-content h3, .rendered-content h4, .rendered-content h5, .rendered-content h6,
+        .rendered-content p,
+        .rendered-content ul, .rendered-content ol,
+        .rendered-content blockquote,
+        .rendered-content pre,
+        .rendered-content hr,
+        .rendered-content table,
+        .rendered-content img,
+        .rendered-content div:not([class]) /* Divs genéricos sin clase, como los de HTML */ {
+            margin-bottom: 1.25em; /* Espacio consistente debajo de bloques */
+        }
+
+        /* Estilos específicos de elementos */
+        .rendered-content h1 { font-size: 2.25em; font-weight: 700; color: #111827; /* gray-900 */ margin-top: 0.5em; border-bottom: 1px solid #E5E7EB; padding-bottom: 0.4em; }
+        .rendered-content h2 { font-size: 1.8em; font-weight: 600; color: #1F2937; /* gray-800 */ margin-top: 1.5em; border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+        .rendered-content h3 { font-size: 1.4em; font-weight: 600; color: #1F2937; margin-top: 1.5em; }
+        .rendered-content h4 { font-size: 1.2em; font-weight: 600; color: #374151; margin-top: 1.5em; }
+        .rendered-content p { /* El margen inferior ya está definido arriba */ }
+        .rendered-content a { color: #0284C7; /* haibit-blue-600 */ text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; transition: color 0.2s; }
+        .rendered-content a:hover { color: #0369A1; /* haibit-blue-700 */ }
+        .rendered-content strong { font-weight: 600; color: #1F2937; }
+        .rendered-content em { font-style: italic; }
+        .rendered-content ul, .rendered-content ol { padding-left: 1.8em; /* Indentación */ }
+        .rendered-content li { margin-bottom: 0.5em; /* Espacio entre items */ }
+        .rendered-content blockquote { border-left: 4px solid #0EA5E9; /* haibit-blue-500 */ padding-left: 1em; margin-left: 0; color: #4B5563; /* gray-600 */ font-style: italic; }
+        .rendered-content hr { border: none; border-top: 1px solid #E5E7EB; /* gray-200 */ }
+        .rendered-content pre {
+             background-color: #1f2937 !important; /* gray-800 - !important para sobreescribir prism */
+             color: #f3f4f6 !important; /* gray-100 */
+             border-radius: 0.5rem; /* rounded-lg */
+             padding: 1em;
+             overflow-x: auto; /* Scroll horizontal */
+             box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+             /* Asegurar que Prism use este fondo */
+             position: relative;
+        }
+         /* Estilo para el código dentro de pre, fuente monoespaciada */
+        .rendered-content pre code[class*="language-"] {
+             font-family: 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', monospace;
+             font-size: 14px;
+             line-height: 1.6;
+             background: none !important; /* Hereda de pre */
+             color: inherit !important;
+             text-shadow: none !important;
+             padding: 0 !important; /* Reset padding */
+             margin: 0 !important; /* Reset margin */
+        }
+        /* Estilo para código inline */
+        .rendered-content code:not(pre > code) {
+             background-color: #E5E7EB; /* gray-200 */
+             color: #B91C1C; /* red-700 - o un gris oscuro */
+             padding: 0.2em 0.4em;
+             border-radius: 4px;
+             font-size: 0.9em;
+             font-family: 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', monospace;
+         }
+        .rendered-content img { max-width: 100%; height: auto; border-radius: 0.5rem; /* rounded-lg */ box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+        .rendered-content table { width: 100%; border-collapse: collapse; }
+        .rendered-content th, .rendered-content td { border: 1px solid #D1D5DB; /* gray-300 */ padding: 0.6em 0.8em; text-align: left; }
+        .rendered-content th { background-color: #F3F4F6; /* gray-100 */ font-weight: 600; }
+
+        /* --- Wiki Cards --- */
+        .wiki-card { background-color: white; border-radius: 0.75rem; padding: 1rem 1.25rem; box-shadow: var(--tw-shadow-fluffy); border: 1px solid #F3F4F6; transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; cursor: pointer; }
+        .wiki-card:hover { transform: translateY(-3px); box-shadow: var(--tw-shadow-fluffy-lg); }
+
+        /* --- Selector de Formato --- */
+        .format-selector label { padding: 6px 12px; border: 1px solid #D1D5DB; border-radius: 6px; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; font-size: 0.9em; background-color: white; }
+        .format-selector input[type="radio"] { display: none; }
+        .format-selector input[type="radio"]:checked + label { background-color: #E0F2FE; border-color: #0EA5E9; color: #0369A1; font-weight: 500; }
+
+    </style>
+</head>
+<body class="bg-haibit-gray-50 text-haibit-gray-700 flex flex-col min-h-screen font-sans antialiased">
+
+    <div id="app-container" class="flex-grow flex flex-col">
+
+        <div id="main-view" class="view-hidden flex-grow flex flex-col">
+            <header class="sticky top-0 z-10 bg-white/80 backdrop-blur-md shadow-sm p-3 border-b border-haibit-gray-200">
+                 <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
+                    <div id="pfp-selector" class="flex-shrink-0" title="Seleccionar Foto de Perfil"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> </div>
+                    <input type="file" id="pfp-input" accept="image/png, image/jpeg, image/gif, image/webp" class="hidden">
+                    <div class="relative flex-grow max-w-md"> <input type="search" id="search-input" placeholder="Buscar wikis..." class="w-full pl-10 pr-4 py-2 border border-haibit-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-haibit-blue-500 focus:border-transparent bg-white shadow-inner"> <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-haibit-gray-400"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> </span> </div>
+                    <button id="new-wiki-button" class="flex-shrink-0 bg-haibit-blue-500 hover:bg-haibit-blue-600 text-white font-semibold py-2 px-4 rounded-full flex items-center transition duration-150 ease-in-out shadow-sm hover:shadow-md text-sm"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> New </button>
+                </div>
+            </header>
+            <main class="flex-grow p-4 md:p-6 max-w-4xl mx-auto w-full">
+                <div class="text-center my-6 md:my-10"> <svg class="inline-block h-12 w-auto text-haibit-blue-500 mb-2" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M20 80H80L60 20H40L20 80Z" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/> <path d="M50 80V40" stroke="currentColor" stroke-width="8" stroke-linecap="round"/> <circle cx="50" cy="30" r="5" fill="currentColor"/> </svg> <p class="text-haibit-gray-500 text-sm">
+Haibit Una Wiki Libre.</p> </div>
+                <div id="wiki-list-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"></div>
+                <div id="no-wikis-message" class="text-center py-10 view-hidden"> <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-haibit-gray-300 mb-3"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 1 4 14.5V4.5A2.5 2.5 0 0 1 6.5 2z"></path></svg> <p class="text-haibit-gray-500">Aún no hay wikis. ¡Sé el primero en crear una!</p> </div>
+                <div class="text-center mt-8"> <button id="load-more-button" class="bg-white hover:bg-haibit-gray-100 text-haibit-blue-600 font-semibold py-2 px-5 rounded-full border border-haibit-gray-200 shadow-sm hover:shadow-md transition duration-150 ease-in-out text-sm view-hidden"> Cargar Más </button> </div>
+            </main>
+        </div>
+
+        <div id="editor-view" class="view-hidden flex-grow flex flex-col p-4 md:p-6 max-w-7xl mx-auto w-full"> <div class="mb-4 flex flex-wrap justify-between items-center gap-4">
+                <button id="back-to-main-from-editor" class="text-haibit-blue-600 hover:text-haibit-blue-700 text-sm inline-flex items-center flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    Volver
+                </button>
+                <h2 class="text-xl font-semibold text-haibit-gray-800 flex-grow text-center md:text-left">Crear/Editar Wiki</h2>
+                <div class="format-selector flex gap-2 flex-shrink-0">
+                    <input type="radio" id="format-markdown" name="contentFormat" value="markdown" checked> <label for="format-markdown">Markdown</label>
+                    <input type="radio" id="format-html" name="contentFormat" value="html"> <label for="format-html">HTML</label>
+                </div>
+            </div>
+
+             <input type="text" id="wiki-title-input" placeholder="Título de tu Wiki" class="w-full px-4 py-2.5 mb-4 border border-haibit-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-haibit-blue-500 focus:border-transparent text-base shadow-inner"/>
+
+            <div class="flex flex-col md:flex-row flex-grow gap-6 min-h-[65vh]"> <div class="flex flex-col md:w-1/2">
+                    <label class="text-sm font-medium mb-1 text-haibit-gray-600">Contenido (<span id="current-format-label">Markdown</span>)</label>
+                    <div id="editor-toolbar">
+                        <button id="toolbar-bold" title="Negrita (Ctrl+B)"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path></svg> </button>
+                        <button id="toolbar-italic" title="Cursiva (Ctrl+I)"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"></line><line x1="14" y1="20" x2="5" y2="20"></line><line x1="15" y1="4" x2="9" y2="20"></line></svg> </button>
+                        <div class="toolbar-separator"></div>
+                        <button id="toolbar-h1" title="Título 1"> H1 </button>
+                        <button id="toolbar-h2" title="Título 2"> H2 </button>
+                        <button id="toolbar-h3" title="Título 3"> H3 </button>
+                         <div class="toolbar-separator"></div>
+                        <button id="toolbar-link" title="Enlace (Ctrl+K)"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg> </button>
+                         <button id="toolbar-image" title="Insertar Imagen"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg> </button>
+                         <div class="toolbar-separator"></div>
+                        <button id="toolbar-list-ul" title="Lista Viñetas"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> </button>
+                         <button id="toolbar-quote" title="Cita"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h3v10M17 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h3v10"></path></svg> </button>
+                        <button id="toolbar-code" title="Bloque Código"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg> </button>
+                        <button id="toolbar-hr" title="Línea Horizontal"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg> </button>
+                    </div>
+                    <div id="codemirror-editor" class="flex-grow h-full"></div>
+                    <textarea id="wiki-content-input-hidden" class="hidden"></textarea>
+                </div>
+                <div class="flex flex-col md:w-1/2">
+                     <label class="text-sm font-medium mb-1 text-haibit-gray-600">Vista Previa</label>
+                     <div id="live-preview" class="rendered-content flex-grow"></div>
+                </div>
+            </div>
+
+             <p id="editor-message" class="text-red-600 text-sm mt-3 h-4"></p>
+            <div class="flex justify-between items-center mt-5">
+                <button id="cancel-edit-button" class="bg-haibit-gray-200 hover:bg-haibit-gray-300 text-haibit-gray-700 font-semibold py-2 px-4 rounded-lg transition duration-150 ease-in-out text-sm"> Cancelar </button>
+                <button id="save-wiki-button" class="bg-haibit-blue-500 hover:bg-haibit-blue-600 text-white font-semibold py-2 px-5 rounded-lg transition duration-150 ease-in-out shadow-sm hover:shadow-md text-sm"> Guardar Wiki </button>
+            </div>
+        </div>
+
+        <div id="wiki-detail-view" class="view-hidden flex-grow flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full">
+             <div class="mb-4 flex justify-between items-center"> <button id="back-to-main-from-detail" class="text-haibit-blue-600 hover:text-haibit-blue-700 text-sm inline-flex items-center"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><polyline points="15 18 9 12 15 6"></polyline></svg> Volver a la Lista </button> </div>
+             <div id="wiki-detail-header" class="mb-5 flex items-center gap-3 border-b border-haibit-gray-200 pb-4"> <img id="detail-pfp" src="" alt=" " class="w-10 h-10 rounded-full object-cover bg-haibit-gray-200 border border-haibit-gray-300"> <h1 id="wiki-detail-title" class="text-3xl font-bold text-haibit-gray-900"></h1> </div>
+             <div id="wiki-detail-content" class="rendered-content mt-[-1px]"></div>
+             <p id="wiki-detail-meta" class="text-xs text-haibit-gray-400 mt-4 text-right"></p>
+        </div>
+
+    </div> <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.0/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/markdown/markdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/continuelist.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/display/placeholder.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/selection/active-line.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/dialog/dialog.min.js"></script>
+
+
+    <script type="module">
+        // Importar Supabase Client
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+        // --- Configuración ---
+        const SUPABASE_URL = 'https://yywfdkgijspqfrhawaqs.supabase.co'; //  ¡REEMPLAZAR!
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5d2Zka2dpanNwcWZyaGF3YXFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ0NzI3ODAsImV4cCI6MjA2MDA0ODc4MH0.QpnFpGVxCrBv-GyCZVjruOMpHJc5r5BwYa9iEi7uy_I'; //  ¡REEMPLAZAR!
+        const PFP_BUCKET_NAME = 'pfps';
+        const WIKIS_PER_PAGE = 9;
+
+        // --- Validar Configuración ---
+        if (!SUPABASE_URL || SUPABASE_URL === 'TU_SUPABASE_URL_AQUI' || !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === 'TU_SUPABASE_ANON_KEY_AQUI') {
+            showError("Error de Configuración: Revisa las claves de Supabase en el código fuente.");
+            throw new Error("Supabase configuration missing.");
+        }
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // --- Selectores DOM (revisados) ---
+        const mainView = document.getElementById('main-view');
+        const editorView = document.getElementById('editor-view');
+        const wikiDetailView = document.getElementById('wiki-detail-view');
+        const pfpSelector = document.getElementById('pfp-selector');
+        const pfpInput = document.getElementById('pfp-input');
+        const searchInput = document.getElementById('search-input');
+        const newWikiButton = document.getElementById('new-wiki-button');
+        const wikiListContainer = document.getElementById('wiki-list-container');
+        const noWikisMessage = document.getElementById('no-wikis-message');
+        const loadMoreButton = document.getElementById('load-more-button');
+        const backToMainFromEditor = document.getElementById('back-to-main-from-editor');
+        const formatSelectors = document.querySelectorAll('input[name="contentFormat"]');
+        const currentFormatLabel = document.getElementById('current-format-label');
+        const wikiTitleInput = document.getElementById('wiki-title-input');
+        const codeMirrorEditorDiv = document.getElementById('codemirror-editor');
+        const livePreview = document.getElementById('live-preview');
+        const editorMessage = document.getElementById('editor-message');
+        const cancelEditButton = document.getElementById('cancel-edit-button');
+        const saveWikiButton = document.getElementById('save-wiki-button');
+        const backToMainFromDetail = document.getElementById('back-to-main-from-detail');
+        const detailPfp = document.getElementById('detail-pfp');
+        const wikiDetailTitle = document.getElementById('wiki-detail-title');
+        const wikiDetailContent = document.getElementById('wiki-detail-content');
+        const wikiDetailMeta = document.getElementById('wiki-detail-meta');
+        const editorToolbar = document.getElementById('editor-toolbar');
+
+        // --- Estado de la Aplicación ---
+        let currentView = 'main';
+        let wikis = [];
+        let currentPage = 0;
+        let isLoading = false;
+        let currentPfpUrl = null;
+        let searchDebounceTimer;
+        let codeMirrorInstance = null;
+        let currentContentType = 'markdown'; // 'markdown' o 'html'
+
+        // ---  Configuración DOMPurify (PERMITE <STYLE>)  ---
+        const domPurifyConfig = {
+            USE_PROFILES: { html: true },
+            ADD_TAGS: ['style'], //  ¡Permite <style>! Revisar seguridad.
+            // FORBID_TAGS: ['script'], // Ya prohibido por defecto en html:true
+            KEEP_CONTENT: true, // Necesario para <style>
+            // FORBID_ATTR: ['onerror', 'onload', ...], // Ya prohibido por defecto
+        };
+        console.warn("DOMPurify configurado para PERMITIR etiquetas <style>. Esto puede tener implicaciones de seguridad si el contenido no es confiable.");
+
+        // --- Inicialización CodeMirror ---
+        function initializeCodeMirror() {
+             if (!codeMirrorInstance) {
+                 codeMirrorInstance = CodeMirror(codeMirrorEditorDiv, {
+                     mode: currentContentType === 'html' ? 'htmlmixed' : 'markdown',
+                     theme: 'material-darker',
+                     lineNumbers: true,
+                     lineWrapping: true,
+                     tabSize: 4,
+                     indentUnit: 4,
+                     autoCloseBrackets: true,
+                     matchBrackets: true,
+                     styleActiveLine: true, // Resaltar línea activa
+                     placeholder: "Escribe aquí tu contenido...", // Placeholder
+                     extraKeys: {"Enter": "newlineAndIndentContinueMarkdownList"}
+                 });
+
+                 codeMirrorInstance.on('change', debounce(updatePreview, 300));
+
+                 // Añadir atajos de teclado para barra de herramientas (opcional)
+                 codeMirrorInstance.setOption("extraKeys", {
+                    "Ctrl-B": () => applyMarkdownFormatting('**'),
+                    "Cmd-B": () => applyMarkdownFormatting('**'),
+                    "Ctrl-I": () => applyMarkdownFormatting('*'),
+                    "Cmd-I": () => applyMarkdownFormatting('*'),
+                    "Ctrl-K": insertMarkdownLink, // Cmd+K puede ser capturado por el navegador
+                    "Cmd-K": insertMarkdownLink,
+                     // ...otros atajos si quieres...
+                     "Enter": "newlineAndIndentContinueMarkdownList" // Mantener el de listas
+                 });
+
+
+             } else {
+                 const currentMode = currentContentType === 'html' ? 'htmlmixed' : 'markdown';
+                 if (codeMirrorInstance.getOption('mode') !== currentMode) {
+                     codeMirrorInstance.setOption('mode', currentMode);
+                 }
+             }
+             // Pequeño delay para asegurar que el editor es visible antes de refrescar
+             setTimeout(() => codeMirrorInstance?.refresh(), 50);
+        }
+
+        // --- Funciones de Utilidad ---
+        function showError(message, isUserFacing = true) {
+            console.error(message);
+            if (isUserFacing) {
+                // Mostrar en la UI si es relevante para el usuario
+                // Por ahora, usamos alert, pero sería mejor un div de mensajes
+                 alert(message);
+            }
+        }
+        function debounce(func, wait) { /* ... (igual que v3) ... */ let timeout;return function executedFunction(...args){const later=()=>{clearTimeout(timeout);func(...args);};clearTimeout(timeout);timeout=setTimeout(later, wait);};}
+        function showView(viewId) { /* ... (igual que v3, con refresh de CM) ... */ mainView.classList.replace('view-visible','view-hidden');editorView.classList.replace('view-visible','view-hidden');wikiDetailView.classList.replace('view-visible','view-hidden'); const viewToShow=document.getElementById(viewId); if(viewToShow){viewToShow.classList.replace('view-hidden','view-visible');currentView=viewId.replace('-view','');window.scrollTo(0,0); if(viewId === 'editor-view' && codeMirrorInstance){setTimeout(()=>codeMirrorInstance.refresh(), 50);}}else{showError(`View ${viewId} not found!`, false); mainView.classList.replace('view-hidden','view-visible');currentView='main';}}
+        function updateLoadMoreButton(hasMore) { /* ... (igual que v3) ... */ if(hasMore){loadMoreButton.classList.replace('view-hidden','view-visible');}else{loadMoreButton.classList.replace('view-visible','view-hidden');}loadMoreButton.disabled=false;loadMoreButton.textContent='Cargar Más';}
+        function updateNoWikisMessage(show) { /* ... (igual que v3) ... */ if(show){noWikisMessage.classList.replace('view-hidden','view-visible');}else{noWikisMessage.classList.replace('view-visible','view-hidden');} }
+
+        // --- Funciones PFP (igual que v3) ---
+        async function handlePfpSelection(event) { /* ... (igual que v3) ... */ const file=event.target.files[0];if(!file)return;const allowedTypes=['image/png','image/jpeg','image/gif','image/webp'];const maxSize=5*1024*1024;if(!allowedTypes.includes(file.type)){showError("Tipo de archivo no permitido.");return;} if(file.size > maxSize){showError("El archivo es demasiado grande (máx 5MB).");return;} pfpSelector.style.backgroundImage=`url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%239CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>')`; try{const fileName=`${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;const filePath=`${fileName}`;const{data, error}=await supabase.storage.from(PFP_BUCKET_NAME).upload(filePath, file, {cacheControl:'3600',upsert:false});if(error)throw error;const{data: publicUrlData}=supabase.storage.from(PFP_BUCKET_NAME).getPublicUrl(filePath);if(!publicUrlData||!publicUrlData.publicUrl){throw new Error("No se pudo obtener la URL pública.");} currentPfpUrl=publicUrlData.publicUrl;localStorage.setItem('haibit_pfp_url',currentPfpUrl);updatePfpDisplay(currentPfpUrl);}catch(error){console.error('Error subiendo PFP:',error);showError(`Error al subir la imagen: ${error.message}`);updatePfpDisplay(localStorage.getItem('haibit_pfp_url'));}finally{pfpInput.value='';}}
+        function updatePfpDisplay(url) { /* ... (igual que v3) ... */ if(url){pfpSelector.style.backgroundImage=`url('${url}')`;}else{pfpSelector.style.backgroundImage='none';} }
+        function loadPfpFromStorage() { /* ... (igual que v3) ... */ const savedUrl=localStorage.getItem('haibit_pfp_url');if(savedUrl){currentPfpUrl=savedUrl;updatePfpDisplay(currentPfpUrl);} }
+
+        // --- Funciones Wiki CRUD ---
+        async function loadWikis(page = 0, searchTerm = '') { /* ... (igual que v3) ... */ if(isLoading)return;isLoading=true;if(page === 0){wikis=[];wikiListContainer.innerHTML='';updateNoWikisMessage(false);updateLoadMoreButton(false);} if(page > 0){loadMoreButton.disabled=true;loadMoreButton.textContent='Cargando...';}else if(!searchTerm){wikiListContainer.innerHTML='<p class="text-center text-haibit-gray-400 col-span-full py-5">Cargando wikis...</p>';} const startIndex=page*WIKIS_PER_PAGE;const endIndex=startIndex+WIKIS_PER_PAGE-1; try{let query=supabase.from('wikis').select('*',{count:'exact'}).order('created_at',{ascending:false}).range(startIndex,endIndex);if(searchTerm){const searchPattern=`%${searchTerm}%`;query=query.or(`title.ilike.${searchPattern},content.ilike.${searchPattern}`);} const{data,error,count}=await query;if(error)throw error; const newWikisData=data||[]; wikis=wikis.concat(newWikisData);renderWikiCards(newWikisData); const totalLoaded=wikis.length;const hasMore=totalLoaded<count;updateLoadMoreButton(hasMore);updateNoWikisMessage(totalLoaded === 0 && !isLoading);currentPage=page;}catch(error){console.error('Error cargando wikis:',error);showError(`Error al cargar wikis: ${error.message}`);wikiListContainer.innerHTML=`<p class="text-center text-red-500 col-span-full py-5">Error al cargar wikis.</p>`;}finally{isLoading=false; if(loadMoreButton.classList.contains('view-visible')){loadMoreButton.disabled=false;loadMoreButton.textContent='Cargar Más';} } }
+        function renderWikiCards(newWikisData) { /* ... (igual que v3) ... */ if(currentPage === 0 && newWikisData.length === 0 && wikis.length === 0 && !isLoading){updateNoWikisMessage(true);return;}else{updateNoWikisMessage(false);} if(currentPage === 0 && searchInput.value.trim() !== ''){wikiListContainer.innerHTML='';} const loadingMsg=wikiListContainer.querySelector('p.text-haibit-gray-400');if(loadingMsg)loadingMsg.remove(); newWikisData.forEach(wiki=>{const card=document.createElement('div');card.className='wiki-card';card.setAttribute('data-id',wiki.id); const pfpImg=wiki.creator_pfp_url?`<img src="${wiki.creator_pfp_url}" alt="PFP" class="w-8 h-8 rounded-full object-cover border border-haibit-gray-200 flex-shrink-0">`:`<div class="w-8 h-8 rounded-full bg-haibit-gray-200 flex items-center justify-center flex-shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-haibit-gray-400"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`; const title=`<h3 class="font-semibold text-haibit-gray-800 truncate ml-2">${wiki.title}</h3>`; let textPreview="Vista previa no disponible."; try{const tempHtml=DOMPurify.sanitize(wiki.content_type === 'markdown'?marked.parse(wiki.content||''): (wiki.content||''), {USE_PROFILES:{html:false}});const tempDiv=document.createElement('div');tempDiv.innerHTML=tempHtml;textPreview=(tempDiv.textContent||tempDiv.innerText||"").substring(0,120);}catch(e){console.warn("Error generando preview de card",e)} card.innerHTML=`<div class="flex items-center mb-2"> ${pfpImg} ${title} </div> <p class="text-sm text-haibit-gray-600 leading-relaxed line-clamp-3"> ${textPreview}${textPreview.length===120?'...':''} </p>`; card.addEventListener('click',()=>showWikiDetail(wiki.id));wikiListContainer.appendChild(card);});}
+
+        // --- Editor, Renderizado y Guardado ---
+        function updatePreview() {
+            if (!codeMirrorInstance) return;
+            const content = codeMirrorInstance.getValue();
+            // Asegúrate de que la función renderContent se llama aquí
+            renderContent(content, currentContentType, livePreview);
+        }
+
+        function renderContent(content, contentType, targetElement) {
+             console.log(`Rendering content type: ${contentType}`); // Log para depurar
+             try {
+                 let htmlToRender = '';
+                 if (contentType === 'markdown') {
+                     const rawHtml = marked.parse(content || '', { breaks: true, gfm: true, smartypants: true }); // Opciones de Marked
+                     htmlToRender = DOMPurify.sanitize(rawHtml, { USE_PROFILES: { html: true } }); // Config segura para MD
+                 } else if (contentType === 'html') {
+                     //  USANDO CONFIGURACIÓN QUE PERMITE <STYLE> PARA HTML DIRECTO 
+                     console.warn("Renderizando HTML directo con <style> permitido. Revisar seguridad.");
+                     htmlToRender = DOMPurify.sanitize(content || '', domPurifyConfig); // Config PELIGROSA
+                 } else {
+                     htmlToRender = `<pre class="text-haibit-gray-500"><code>Tipo de contenido desconocido: ${contentType}\n\n${content.replace(/</g, "&lt;")}</code></pre>`;
+                 }
+
+                 targetElement.innerHTML = htmlToRender; // Actualizar el DOM
+
+                 // Resaltar SÓLO si hay bloques de código presentes
+                 if (targetElement.querySelector('pre > code[class*="language-"]')) {
+                     // Añadir clase line-numbers si quieres números de línea
+                     targetElement.querySelectorAll('pre').forEach(pre => pre.classList.add('line-numbers'));
+                     Prism.highlightAllUnder(targetElement); // Llamar a Prism DESPUÉS de insertar en el DOM
+                 }
+             } catch (e) {
+                 console.error(`Error rendering ${contentType} content:`, e);
+                 targetElement.innerHTML = `<div class='p-4 bg-red-100 text-red-700 border border-red-300 rounded-lg'><strong>Error al procesar el contenido (${contentType}):</strong><br><pre>${e.message}</pre></div>`;
+             }
+        }
+
+        async function saveWiki() { /* ... (igual que v3, guarda currentContentType) ... */
+             const title = wikiTitleInput.value.trim(); const content = codeMirrorInstance.getValue();
+             editorMessage.textContent = ''; if (!title) { editorMessage.textContent = 'El título no puede estar vacío.'; wikiTitleInput.focus(); return; } if (content.trim().length <= 20) { editorMessage.textContent = 'El contenido debe tener más de 20 caracteres.'; return; }
+             saveWikiButton.disabled = true; saveWikiButton.textContent = 'Guardando...'; const pfpToSave = localStorage.getItem('haibit_pfp_url') || null; const contentTypeToSave = currentContentType;
+             try { const { data, error } = await supabase.from('wikis').insert([{ title: title, content: content, content_type: contentTypeToSave, creator_pfp_url: pfpToSave }]).select(); if (error) throw error; console.log('Wiki guardada:', data); wikiTitleInput.value = ''; if (codeMirrorInstance) codeMirrorInstance.setValue(''); showView('main-view'); currentPage = 0; loadWikis(currentPage);
+             } catch (error) { console.error('Error guardando wiki:', error); editorMessage.textContent = `Error al guardar: ${error.message}.`;
+             } finally { saveWikiButton.disabled = false; saveWikiButton.textContent = 'Guardar Wiki'; }
+         }
+
+        function showWikiDetail(wikiId) { /* ... (igual que v3, usa renderContent) ... */
+             const wiki = wikis.find(w => w.id === wikiId); if (!wiki) { showError("No se encontró la wiki."); return; }
+             wikiDetailTitle.textContent = wiki.title; detailPfp.style.display = wiki.creator_pfp_url ? 'block' : 'none'; if(wiki.creator_pfp_url) detailPfp.src = wiki.creator_pfp_url; else detailPfp.src = '';
+             renderContent(wiki.content, wiki.content_type, wikiDetailContent);
+             const date = new Date(wiki.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }); wikiDetailMeta.textContent = `Creado: ${date} | Tipo: ${wiki.content_type}`;
+             showView('wiki-detail-view');
+        }
+
+        // --- Acciones Barra Herramientas Editor ---
+        function applyMarkdownFormatting(prefix, suffix = prefix, cursorOffset = prefix.length) {
+            if (!codeMirrorInstance || currentContentType !== 'markdown') return;
+            const selection = codeMirrorInstance.getSelection();
+            if (selection) { codeMirrorInstance.replaceSelection(prefix + selection + suffix); }
+            else { const cursor = codeMirrorInstance.getCursor(); codeMirrorInstance.replaceRange(prefix + suffix, cursor); codeMirrorInstance.setCursor(cursor.line, cursor.ch + cursorOffset); }
+            codeMirrorInstance.focus();
+        }
+        function insertMarkdownLinePrefix(prefix) {
+            if (!codeMirrorInstance || currentContentType !== 'markdown') return;
+            const { line } = codeMirrorInstance.getCursor();
+            codeMirrorInstance.replaceRange(prefix, { line: line, ch: 0 });
+            codeMirrorInstance.focus();
+        }
+        function insertMarkdownMultilineBlock(startTag, endTag = startTag) {
+            if (!codeMirrorInstance || currentContentType !== 'markdown') return;
+            const selection = codeMirrorInstance.getSelection();
+            if (selection) { codeMirrorInstance.replaceSelection(`${startTag}\n${selection}\n${endTag}\n`); }
+            else { const cursor = codeMirrorInstance.getCursor(); codeMirrorInstance.replaceRange(`\n${startTag}\n\n${endTag}\n`, cursor); codeMirrorInstance.setCursor(cursor.line + 2, 0); }
+            codeMirrorInstance.focus();
+        }
+         function insertMarkdownLink() {
+             if (!codeMirrorInstance || currentContentType !== 'markdown') return;
+              // Usar el diálogo de CodeMirror para una mejor UI
+             codeMirrorInstance.openDialog("URL: <input type=text style='width: 90%'>", (url) => {
+                 if (!url) { codeMirrorInstance.focus(); return; } // Cancelado o vacío
+                 const selection = codeMirrorInstance.getSelection() || "texto del enlace";
+                 codeMirrorInstance.replaceSelection(`[${selection}](${url})`);
+                 codeMirrorInstance.focus();
+             }, {value: "https://"});
+         }
+         function insertMarkdownImage() {
+             if (!codeMirrorInstance || currentContentType !== 'markdown') return;
+             codeMirrorInstance.openDialog("URL Imagen: <input type=text style='width: 90%'>", (url) => {
+                 if (!url) { codeMirrorInstance.focus(); return; }
+                 codeMirrorInstance.openDialog("Texto Alternativo: <input type=text style='width: 90%'>", (alt) => {
+                     codeMirrorInstance.replaceSelection(`![${alt || 'imagen'}](${url})`);
+                     codeMirrorInstance.focus();
+                 }, {value: ""});
+             }, {value: "https://"});
+         }
+
+        // --- Event Listeners ---
+        pfpSelector.addEventListener('click', () => pfpInput.click());
+        pfpInput.addEventListener('change', handlePfpSelection);
+        newWikiButton.addEventListener('click', () => { document.getElementById('format-markdown').checked = true; currentContentType = 'markdown'; currentFormatLabel.textContent = 'Markdown'; initializeCodeMirror(); wikiTitleInput.value = ''; codeMirrorInstance.setValue(''); editorMessage.textContent = ''; livePreview.innerHTML = ''; showView('editor-view'); });
+        backToMainFromEditor.addEventListener('click', () => showView('main-view'));
+        backToMainFromDetail.addEventListener('click', () => showView('main-view'));
+        cancelEditButton.addEventListener('click', () => showView('main-view'));
+        saveWikiButton.addEventListener('click', saveWiki);
+        loadMoreButton.addEventListener('click', () => loadWikis(currentPage + 1, searchInput.value.trim()));
+        searchInput.addEventListener('input', () => { clearTimeout(searchDebounceTimer); searchDebounceTimer = setTimeout(() => { currentPage = 0; loadWikis(currentPage, searchInput.value.trim()); }, 400); });
+        formatSelectors.forEach(radio => { radio.addEventListener('change', (event) => { currentContentType = event.target.value; currentFormatLabel.textContent = currentContentType === 'html' ? 'HTML' : 'Markdown'; if (codeMirrorInstance) { const newMode = currentContentType === 'html' ? 'htmlmixed' : 'markdown'; codeMirrorInstance.setOption("mode", newMode); } updatePreview(); }); });
+
+        // Toolbar Listeners
+        editorToolbar.addEventListener('click', (e) => {
+            const button = e.target.closest('button');
+            if (!button) return;
+
+            switch (button.id) {
+                case 'toolbar-bold': applyMarkdownFormatting('**'); break;
+                case 'toolbar-italic': applyMarkdownFormatting('*'); break;
+                case 'toolbar-h1': insertMarkdownLinePrefix('# '); break;
+                case 'toolbar-h2': insertMarkdownLinePrefix('## '); break;
+                case 'toolbar-h3': insertMarkdownLinePrefix('### '); break;
+                case 'toolbar-link': insertMarkdownLink(); break;
+                case 'toolbar-image': insertMarkdownImage(); break;
+                case 'toolbar-list-ul': insertMarkdownLinePrefix('* '); break; // Simple prefix
+                case 'toolbar-quote': insertMarkdownLinePrefix('> '); break;
+                case 'toolbar-code': insertMarkdownMultilineBlock('```', '```'); break;
+                case 'toolbar-hr': applyMarkdownFormatting('\n---\n\n', '', 0); break; // Insertar línea horizontal
+            }
+        });
+
+        // --- Inicialización App ---
+        function initializeApp() { console.log("Inicializando Haibit v4..."); loadPfpFromStorage(); loadWikis(0); showView('main-view'); }
+        initializeApp();
+
+    </script>
+
+</body>
+</html>
