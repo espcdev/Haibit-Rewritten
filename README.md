@@ -2,7 +2,7 @@
 
 *Tu wiki libre, minimalista y flexible.*
 
-[![Estado: Prototipo v4](https://img.shields.io/badge/estado-prototipo_v4-blue?style=flat-square)](https://github.com/TU_USUARIO/TU_REPOSITORIO) [![Website Status](https://img.shields.io/website?url=https%3A%2F%2Fthehaibit.com&label=thehaibit.com&style=flat-square)](https://thehaibit.com/)
+[![Estado: Prototipo v4](https://img.shields.io/badge/estado-prototipo_v4-blue?style=flat-square)](https://github.com/espcdev/Haibit-Rewritten) [![Website Status](https://img.shields.io/website?url=https%3A%2F%2Fthehaibit.com&label=thehaibit.com&style=flat-square)](https://thehaibit.com/)
 [![Licencia: MIT](https://img.shields.io/badge/licencia-MIT-green?style=flat-square)](LICENSE) ---
 
 **Haibit** es una plataforma wiki abierta y experimental con un diseño minimalista y móvil primero. Explora la versión actual en **[thehaibit.com](https://thehaibit.com/)**.
@@ -70,7 +70,7 @@ Sigue estos pasos para configurar y ejecutar Haibit v4 en tu máquina:
 
 1.  **Clonar Repositorio:**
     ```bash
-    git clone [https://github.com/TU_USUARIO/TU_REPOSITORIO.git](https://github.com/TU_USUARIO/TU_REPOSITORIO.git)
+    git clone [https://github.com/espcdev/Haibit-Rewritten.git](https://github.com/espcdev/Haibit-Rewritten.git)
     cd TU_REPOSITORIO
     ```
     *(Reemplaza con la URL de tu repositorio)*
@@ -215,7 +215,7 @@ El desarrollo futuro podría incluir:
     `git push origin feature/nombre-descriptivo`.
 5.  **Abre un Pull Request** en el repositorio original, explicando claramente tus cambios.
 
-También puedes abrir un [Issue](https://github.com/TU_USUARIO/TU_REPOSITORIO/issues) para reportar bugs o sugerir ideas. ---
+También puedes abrir un [Issue](https://github.com/espcdev/Haibit-Rewritten/issues) para reportar bugs o sugerir ideas. ---
 
 ## 📜 Licencia
 
