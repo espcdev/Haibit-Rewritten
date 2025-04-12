@@ -73,8 +73,7 @@ Sigue estos pasos para configurar y ejecutar Haibit v4 en tu máquina:
     git clone [https://github.com/espcdev/Haibit-Rewritten.git](https://github.com/espcdev/Haibit-Rewritten.git)
     cd TU_REPOSITORIO
     ```
-    *(Reemplaza con la URL de tu repositorio)*
-
+    
 2.  **Cuenta y Proyecto Supabase:**
     * Crea una cuenta en [Supabase.io](https://supabase.io/).
     * Crea un nuevo proyecto y obtén tu **URL del Proyecto** y **Clave Anónima (`anon key`)**.
