@@ -1,145 +1,109 @@
-# <img src="https://i.ibb.co/N2tW1dB2/Screenshot-2025-04-12-11-48-26-043-com-chrome-dev-edit-removebg-preview.png" alt="Haibit Logo" width="50" height="50" style="vertical-align: middle; margin-right: 10px;"> Haibit v4
+# <img src="https://i.ibb.co/N2tW1dB2/Screenshot-2025-04-12-11-48-26-043-com-chrome-dev-edit-removebg-preview.png" alt="Haibit Logo" width="50" height="50" style="vertical-align: middle; margin-right: 10px;"> Haibit
 
 *Tu wiki libre, minimalista y flexible.*
 
-[![Estado: Prototipo v4](https://img.shields.io/badge/estado-prototipo_v4-blue?style=flat-square)](https://github.com/espcdev/Haibit-Rewritten) [![Website Status](https://img.shields.io/website?url=https%3A%2F%2Fthehaibit.com&label=thehaibit.com&style=flat-square)](https://thehaibit.com/)
-[![Licencia: MIT](https://img.shields.io/badge/licencia-MIT-green?style=flat-square)](LICENSE) ---
+[![Website Status](https://img.shields.io/website?url=https%3A%2F%2Fthehaibit.com&label=thehaibit.com&style=flat-square)](https://thehaibit.com/)
+[![Licencia: MIT](https://img.shields.io/badge/licencia-MIT-green?style=flat-square)](LICENSE)
+[![Estado v4 (Principal): Prototipo](https://img.shields.io/badge/v4_(Principal)-Prototipo-blue?style=flat-square)](/)
+[![Estado v5 (Comunidades): Prototipo](https://img.shields.io/badge/v5_(Comunidades)-Prototipo-blueviolet?style=flat-square)](/comunidades)
 
-**Haibit** es una plataforma wiki abierta y experimental con un diseño minimalista y móvil primero. Explora la versión actual en **[thehaibit.com](https://thehaibit.com/)**.
 
-El objetivo es permitir a cualquier usuario crear y compartir conocimiento fácilmente, ofreciendo flexibilidad en el formato (Markdown y HTML Mixto) sin requerir registro. Esta versión v4 es un prototipo funcional.
+---
 
-## 🚀 Demo en Vivo y Captura
+**Haibit** es una plataforma wiki abierta y experimental con un enfoque minimalista y móvil primero. Actualmente existen dos versiones principales en desarrollo:
 
-Visita la demo desplegada para probar Haibit:
+1.  **Haibit Principal (v4):** Una versión más simple y directa para crear páginas wiki individuales. **Disponible en: [thehaibit.com](https://thehaibit.com/)**
+2.  **Haibit Comunidades (v5 - "SuBits"):** Una versión más avanzada que introduce comunidades temáticas (SuBits) con su propia estructura de páginas, secciones y subsecciones. **Disponible en: [thehaibit.com/comunidades](https://thehaibit.com/comunidades)**
 
-🔗 **[https://thehaibit.com/](https://thehaibit.com/)**
+Ambas versiones permiten crear contenido en Markdown o HTML Mixto sin necesidad de registro.
+
+## 🚀 Demos y Capturas
+
+* **Demo Principal (v4):** 🔗 **[https://thehaibit.com/](https://thehaibit.com/)**
+* **Demo Comunidades (v5):** 🔗 **[https://thehaibit.com/comunidades](https://thehaibit.com/comunidades)**
 
 <p align="center">
-  <img src="https://i.ibb.co/4RtWm3Q9/Screenshot-2025-04-12-11-46-28-292-com-chrome-dev-edit.jpg" alt="Haibit v4 Interface" width="700">
+  <img src="https://i.ibb.co/4RtWm3Q9/Screenshot-2025-04-12-11-46-28-292-com-chrome-dev-edit.jpg" alt="Haibit v4/v5 Interface" width="700">
   <br>
-  <em>Interfaz principal de Haibit v4</em>
+  <em>Interfaz de ejemplo de Haibit</em>
 </p>
 
 ---
 
+## ✨ Características Clave
+
+* **v4 (Principal):** Creación simple de páginas wiki, PFP opcional, editor CodeMirror, Markdown/HTML, vista previa, búsqueda básica.
+* **v5 (Comunidades):** Todo lo de v4 MÁS:
+    * **SuBits:** Creación y navegación de comunidades temáticas.
+    * **Estructura Jerárquica:** Organización de páginas por secciones/subsecciones dentro de un SuBit.
+    * **Navegación SPA:** Uso de rutas hash (`#/...`) para navegar dentro de la sección de comunidades.
+    * **Personalización de SuBit:** Nombre, descripción y logo para cada comunidad.
+
 ## 💡 Filosofía del Proyecto
 
-* **Libre y Abierto:** Acceso sin barreras para crear y consultar información.
-* **Minimalista:** Interfaz limpia y enfocada en el contenido.
-* **Flexible:** Soporte para múltiples formatos de contenido (Markdown y HTML).
-* **Sin Fricción:** Experiencia de usuario sencilla, sin necesidad de cuentas.
-* **Móvil Primero:** Diseño optimizado para uso en dispositivos móviles.
+*(Igual que antes: Libre/Abierto, Minimalista, Flexible, Sin Fricción, Móvil Primero)*
 
 ---
 
-## ✨ Características Principales (v4)
-
-* **Editor Dual:** Soporte para **Markdown** y **HTML Mixto** con selector de formato.
-* **Vista Previa en Vivo:** Renderizado instantáneo del contenido con espaciado corregido.
-* **Editor Avanzado (CodeMirror):** Resaltado de sintaxis, números de línea, línea activa, placeholder, barra de herramientas y atajos básicos.
-* **Renderizado Consistente:** Estilos CSS dedicados para una visualización clara del contenido final.
-* **Resaltado de Código (Prism.js):** Formato automático para bloques de código.
-* **Sanitización HTML (DOMPurify):** Protección contra XSS (configurado para permitir `<style>` en modo HTML, ver advertencias).
-* **PFP Personalizada:** Asociación opcional de imagen de perfil (vía Supabase Storage).
-* **Diseño Responsivo:** Adaptado a diferentes tamaños de pantalla.
-* **Búsqueda y Paginación:** Filtrado básico y carga progresiva de wikis.
-
 ## 🛠️ Tecnologías Utilizadas
 
-* **Frontend:**
-    * 🌐 **HTML5** y **CSS3**: Estructura y estilos base.
-    * 🎨 **Tailwind CSS (Play CDN):** Framework CSS utility-first para desarrollo rápido (versión demo).
-    * 📜 **Vanilla JavaScript (ESM):** Lógica de la interfaz y funcionalidad.
-* **Backend & Base de Datos:**
-    * ☁️ **Supabase:** Plataforma BaaS open source.
-        * *PostgreSQL Database:* Almacenamiento principal de wikis.
-        * *Supabase Storage:* Almacenamiento de imágenes PFP. Elegido por su facilidad de integración y generoso plan gratuito.
-* **Librerías Clave:**
-    * ✍️ **CodeMirror:** Editor de texto robusto y configurable.
-    * 🔄 **Marked.js:** Parser rápido de Markdown a HTML.
-    * 🔒 **DOMPurify:** Sanitizador de HTML esencial para seguridad.
-    * 💡 **Prism.js:** Resaltado de sintaxis ligero y extensible.
-* **Iconos:** ✨ **Lucide Icons** (SVGs embebidos)
+*(Igual que antes: HTML, Tailwind (Play CDN), Vanilla JS, Supabase, CodeMirror, Marked, DOMPurify, Prism, Lucide)*
 
 ---
 
 ## 🏁 Cómo Empezar (Ejecutar Localmente)
 
-Sigue estos pasos para configurar y ejecutar Haibit v4 en tu máquina:
+Este repositorio ahora contiene ambas versiones:
 
-1.  **Clonar Repositorio:**
-    ```bash
-    git clone [https://github.com/espcdev/Haibit-Rewritten.git](https://github.com/espcdev/Haibit-Rewritten.git)
-    cd TU_REPOSITORIO
-    ```
-    
-2.  **Cuenta y Proyecto Supabase:**
-    * Crea una cuenta en [Supabase.io](https://supabase.io/).
-    * Crea un nuevo proyecto y obtén tu **URL del Proyecto** y **Clave Anónima (`anon key`)**.
+* **v4:** Se encuentra en el archivo `index.html` de la raíz.
+* **v5:** Se encuentra en el archivo `comunidades/index.html`.
 
+Para ejecutar **ambas** localmente (necesitarás configurar Supabase una sola vez):
+
+1.  **Clonar:** `git clone https://github.com/espcdev/Haibit-Rewritten.git && cd Haibit-Rewritten`
+2.  **Cuenta y Proyecto Supabase:** Crea un proyecto en [Supabase.io](https://supabase.io/) y obtén tu **URL** y **Clave Anónima (`anon key`)**.
 3.  **Configurar Base de Datos Supabase:**
     <details>
-    <summary><strong>Haz clic para ver y copiar el SQL de la Base de Datos</strong></summary>
+    <summary><strong>SQL para Base de Datos (Necesario para v5, opcionalmente adaptable para v4)</strong></summary>
 
     ```sql
-    -- Crear tabla wikis (si no existe)
-    CREATE TABLE IF NOT EXISTS wikis (
-      id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
-      created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-      last_updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-      title TEXT NOT NULL CHECK (char_length(title) > 0),
-      content TEXT NOT NULL CHECK (char_length(content) > 20), -- Check mínimo
-      content_type TEXT DEFAULT 'markdown' NOT NULL, -- markdown o html
-      creator_pfp_url TEXT, -- URL pública de Supabase Storage
-      search_vector TSVECTOR -- Opcional para búsqueda avanzada
-    );
+    /* --- Tablas y Políticas para v5 (Comunidades) --- */
 
-    -- Habilitar Row Level Security (¡MUY IMPORTANTE!)
-    ALTER TABLE wikis ENABLE ROW LEVEL SECURITY;
+    -- Crear tabla 'subits'
+    CREATE TABLE subits ( id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY, created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL, slug TEXT NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9-]+$' AND char_length(slug) > 2), name TEXT NOT NULL CHECK (char_length(name) > 0), description TEXT, logo_url TEXT, creator_pfp_url TEXT );
+    ALTER TABLE subits ENABLE ROW LEVEL SECURITY;
+    DROP POLICY IF EXISTS "Allow public read access" ON subits; CREATE POLICY "Allow public read access" ON subits FOR SELECT USING (true);
+    DROP POLICY IF EXISTS "Allow public insert access" ON subits; CREATE POLICY "Allow public insert access" ON subits FOR INSERT WITH CHECK (true);
 
-    -- Borrar políticas antiguas si existen (para evitar conflictos)
-    DROP POLICY IF EXISTS "Allow public read access" ON wikis;
-    DROP POLICY IF EXISTS "Allow public insert access" ON wikis;
+    -- Crear tabla 'wiki_pages'
+    CREATE TABLE wiki_pages ( id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY, created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL, last_updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL, subit_id BIGINT NOT NULL REFERENCES subits(id) ON DELETE CASCADE, title TEXT NOT NULL CHECK (char_length(title) > 0), slug TEXT NOT NULL CHECK (slug ~ '^[a-z0-9-]+$' AND char_length(slug) > 0), content TEXT NOT NULL CHECK (char_length(content) > 20), content_type TEXT DEFAULT 'markdown' NOT NULL, creator_pfp_url TEXT, section_key TEXT CHECK (section_key IS NULL OR section_key ~ '^[a-z0-9-]+$'), subsection_key TEXT CHECK (subsection_key IS NULL OR subsection_key ~ '^[a-z0-9-]+$'), search_vector TSVECTOR, CONSTRAINT wiki_pages_subit_id_slug_key UNIQUE (subit_id, slug) );
+    ALTER TABLE wiki_pages ENABLE ROW LEVEL SECURITY;
+    DROP POLICY IF EXISTS "Allow public read access" ON wiki_pages; CREATE POLICY "Allow public read access" ON wiki_pages FOR SELECT USING (true);
+    DROP POLICY IF EXISTS "Allow public insert access" ON wiki_pages; CREATE POLICY "Allow public insert access" ON wiki_pages FOR INSERT WITH CHECK ( char_length(title) > 0 AND char_length(content) > 20 );
 
-    -- Política: Cualquiera puede LEER todas las wikis
-    CREATE POLICY "Allow public read access" ON wikis
-      FOR SELECT USING (true);
+    -- Función y Trigger para last_updated_at
+    CREATE OR REPLACE FUNCTION update_last_updated_at_column() RETURNS TRIGGER AS $$BEGIN NEW.last_updated_at = NOW(); RETURN NEW; END;$$ LANGUAGE plpgsql;
+    DROP TRIGGER IF EXISTS update_wiki_pages_last_updated_at ON wiki_pages; CREATE TRIGGER update_wiki_pages_last_updated_at BEFORE UPDATE ON wiki_pages FOR EACH ROW EXECUTE FUNCTION update_last_updated_at_column();
 
-    -- Política: Cualquiera puede INSERTAR una nueva wiki (con validaciones)
-    CREATE POLICY "Allow public insert access" ON wikis
-      FOR INSERT WITH CHECK (
-        char_length(title) > 0 AND
-        char_length(content) > 20 -- Check mínimo de contenido
-      );
+    -- Índices opcionales
+    CREATE INDEX IF NOT EXISTS idx_wiki_pages_subit_id ON wiki_pages(subit_id); CREATE INDEX IF NOT EXISTS idx_wiki_pages_slug ON wiki_pages(slug); CREATE INDEX IF NOT EXISTS idx_wiki_pages_section_key ON wiki_pages(section_key);
 
-    -- Función para actualizar 'last_updated_at' (si no existe)
-    CREATE OR REPLACE FUNCTION update_last_updated_at_column()
-    RETURNS TRIGGER AS $$
-    BEGIN
-      NEW.last_updated_at = NOW();
-      RETURN NEW;
-    END;
-    $$ LANGUAGE plpgsql;
+    /* --- Tabla para v4 (si quieres mantenerla separada) --- */
+    /* Si quieres usar la misma DB para v4, podrías crear una tabla 'legacy_wikis' similar a la 'wikis' original de v4, o adaptar el código v4 para usar 'wiki_pages' con un subit_id especial (ej: null o 0), lo cual es más complejo. */
+    /* Lo más simple para probar localmente v4 puede ser usar su SQL original en un proyecto Supabase SEPARADO o comentar/ignorar la carga de datos en v4 si solo quieres ver la UI. */
 
-    -- Trigger que usa la función (si no existe)
-    DROP TRIGGER IF EXISTS update_wikis_last_updated_at ON wikis;
-    CREATE TRIGGER update_wikis_last_updated_at
-    BEFORE UPDATE ON wikis
-    FOR EACH ROW
-    EXECUTE FUNCTION update_last_updated_at_column();
     ```
-    *Ejecuta este SQL en el `SQL Editor` de tu proyecto Supabase.*
+    *Ejecuta el SQL relevante en el `SQL Editor` de tu proyecto Supabase.*
     </details>
 
 4.  **Configurar Supabase Storage:**
     <details>
-    <summary><strong>Haz clic para ver los pasos y políticas de Storage</strong></summary>
+    <summary><strong>Pasos y Políticas de Storage (para PFP en ambas versiones)</strong></summary>
 
-    1.  Ve a `Storage` en tu dashboard de Supabase.
+    1.  Ve a `Storage` en Supabase.
     2.  Crea un bucket llamado `pfps`.
-    3.  **Importante:** Marca la casilla `Make this bucket public`.
-    4.  Ve a `Policies` bajo `Storage` y crea/verifica estas políticas (ejecutándolas en SQL Editor o desde la UI):
+    3.  **Marca la casilla `Make this bucket public`**.
+    4.  Ve a `Policies` y crea/verifica estas políticas:
 
         * **Lectura Pública:**
             ```sql
@@ -149,54 +113,40 @@ Sigue estos pasos para configurar y ejecutar Haibit v4 en tu máquina:
             ```sql
             CREATE POLICY "Allow Public Uploads to pfps" ON storage.objects FOR INSERT WITH CHECK ( (bucket_id = 'pfps') AND (storage.extension(name) IN ('png','jpg','jpeg','gif','webp')) );
             ```
-            *(La validación de tamaño se realiza en el cliente JS).*
     </details>
 
 5.  **Configurar Claves API:**
-    * Abre el archivo `index.html` (o el archivo principal).
-    * Busca y reemplaza `'TU_SUPABASE_URL_AQUI'` y `'TU_SUPABASE_ANON_KEY_AQUI'` con tus credenciales reales de Supabase.
-    * **Importante:** No compartas ni subas tus claves reales a repositorios públicos.
+    * Abre **ambos** archivos (`index.html` y `comunidades/index.html`).
+    * En **cada uno**, busca y reemplaza `'TU_SUPABASE_URL_AQUI'` y `'TU_SUPABASE_ANON_KEY_AQUI'` con tus credenciales reales.
+    * **⚠️ ¡No subas tus claves reales a GitHub!**
 
-6.  **Abrir en Navegador:** Abre el archivo HTML principal en tu navegador web.
-
----
-
-## 📖 Cómo Usar la Aplicación
-
-* **Navegar/Buscar:** Explora las wikis en la página principal. Usa la barra de búsqueda para filtrar o el botón "Cargar Más" para ver más entradas.
-* **Establecer PFP:** Haz clic en el círculo (👤) en la esquina superior izquierda para subir una imagen. Se usará al guardar nuevas wikis.
-* **Crear/Editar:**
-    * Haz clic en "+ New".
-    * Selecciona el formato deseado (Markdown o HTML).
-    * Introduce un título.
-    * Escribe el contenido en el editor CodeMirror. Puedes usar los botones de la barra de herramientas para aplicar formato rápidamente (especialmente útil en Markdown).
-    * La vista previa se actualizará automáticamente a la derecha.
-    * Haz clic en "Guardar Wiki" cuando termines.
-* **Ver Detalle:** Haz clic en cualquier tarjeta de wiki para abrir la vista completa.
+6.  **Abrir en Navegador:**
+    * Para ver v4: Abre el archivo `index.html` de la raíz.
+    * Para ver v5: Abre el archivo `comunidades/index.html`. *(Nota: La navegación interna de v5 con `#` funcionará correctamente)*.
 
 ---
 
-## ⚠️ Limitaciones y Advertencias Importantes
+## ⚠️ Limitaciones y Advertencias (Ambas Versiones Prototipo)
 
-* **Naturaleza de Prototipo:** Haibit v4 es un prototipo. Funciona, pero puede tener errores y carece de muchas características de una aplicación de producción.
-* **Tecnología de Demo (Play CDN):** La versión actual usa Tailwind Play CDN. **No es recomendable para producción** debido a su impacto en el rendimiento. Una versión futura debería usar un proceso de build.
-* **🚨 Seguridad del Modo HTML:** El modo "HTML" permite la inserción de etiquetas `<style>`. Aunque DOMPurify intenta sanitizar, **esto representa un riesgo de seguridad inherente** si la plataforma se usara públicamente con contenido no confiable. La configuración actual está optimizada para pruebas de funcionalidad.
-* **Almacenamiento Público/Anónimo:** Las PFPs se suben anónimamente a un bucket público para simplificar (sin login). Esto tiene implicaciones de seguridad a considerar en un despliegue real.
-* **Funcionalidad Pendiente:** No incluye edición, borrado, historial, moderación avanzada, etc.
+* **Prototipo:** Ambas v4 y v5 son prototipos funcionales.
+* **Single File + Play CDN:** **No recomendado para producción**. Se necesita un proceso de build.
+* **🚨 Seguridad HTML/`<style>` (v4 y v5):** Permitir HTML y `<style>` tiene **riesgos de seguridad inherentes**.
+* **Almacenamiento Público/Anónimo:** La subida de PFPs es anónima. Evaluar riesgos.
+* **Funcionalidad Pendiente:** Edición/borrado, historial, moderación, etc., no implementados.
 
 ---
 
 ## 🔮 Futuro / Roadmap
 
-El desarrollo futuro podría incluir:
+*(Similar a antes, pero quizás enfocado en unificar o decidir la dirección principal)*
 
-* [ ] Transición a un framework moderno (SvelteKit, Next.js, Astro) con proceso de build.
-* [ ] Implementación de CRUD completo (Editar/Borrar).
-* [ ] Sistema opcional de autenticación (Supabase Auth).
-* [ ] Revisión profunda de la seguridad del modo HTML o alternativas (CSS restringido, temas).
-* [ ] Búsqueda avanzada (Supabase Full-Text Search).
-* [ ] Historial de versiones / diffs.
-* [ ] Sistema de moderación o reportes.
+* [ ] Unificar codebase o mantener ramas separadas con build.
+* [ ] Implementar CRUD completo (Editar/Borrar) para páginas y SuBits.
+* [ ] Autenticación de Usuarios (Supabase Auth).
+* [ ] Refinar seguridad del modo HTML o alternativas.
+* [ ] Búsqueda avanzada (Full-Text Search).
+* [ ] Historial de versiones.
+* [ ] Moderación / Reportes.
 * [ ] Pruebas automatizadas.
 
 ---
@@ -206,15 +156,14 @@ El desarrollo futuro podría incluir:
 ¡Las contribuciones son bienvenidas! Si deseas ayudar a mejorar Haibit:
 
 1.  **Haz un Fork** del repositorio.
-2.  **Crea una nueva rama** para tu funcionalidad o corrección:
-    `git checkout -b feature/nombre-descriptivo` o `git checkout -b fix/error-especifico`.
-3.  **Realiza tus cambios** y haz commit:
-    `git commit -am 'feat: Añade [funcionalidad X]'` o `git commit -am 'fix: Corrige [error Y]'`.
-4.  **Haz Push** a tu rama:
-    `git push origin feature/nombre-descriptivo`.
-5.  **Abre un Pull Request** en el repositorio original, explicando claramente tus cambios.
+2.  **Crea una nueva rama** (`git checkout -b feature/mejora` o `fix/bug`).
+3.  **Realiza tus cambios** y haz commit (`git commit -am 'feat: Describe tu cambio'`).
+4.  **Haz Push** a tu rama (`git push origin feature/mejora`).
+5.  **Abre un Pull Request** explicando tus cambios.
 
-También puedes abrir un [Issue](https://github.com/espcdev/Haibit-Rewritten/issues) para reportar bugs o sugerir ideas. ---
+También puedes abrir un [Issue](https://github.com/espcdev/Haibit-Rewritten/issues) para reportar bugs o sugerir ideas.
+
+---
 
 ## 📜 Licencia
 
