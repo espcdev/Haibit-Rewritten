@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haibit v5 - Comunidades (SuBits)</title>
+    <meta name="description" content="Haibit v5 - Wiki con comunidades (SuBits), editor potente y soporte HTML/Markdown.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script> tailwind.config = { theme: { extend: { /* ... Misma config v4 ... */ fontFamily:{sans:['Inter','ui-sans-serif','system-ui']}, colors:{'haibit-blue':{'100':'#E0F2FE','500':'#0EA5E9','600':'#0284C7','700':'#0369A1'},'haibit-gray':{'50':'#F9FAFB','100':'#F3F4F6','200':'#E5E7EB','300':'#D1D5DB','400':'#9CA3AF','500':'#6B7280','600':'#4B5563','700':'#374151','800':'#1F2937','900':'#111827'}},boxShadow:{'fluffy':'0 4px 15px rgba(0,0,0,0.05)','fluffy-lg':'0 10px 30px rgba(0,0,0,0.07)'},borderRadius:{'xl':'0.75rem','2xl':'1rem','3xl':'1.5rem'} } } } </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/material-darker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/dialog/dialog.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" />
+
+    <style>
+        /* --- Estilos Generales, PFP, Editor, Toolbar, Rendered Content (Mayormente igual v4) --- */
+        html { scroll-behavior: smooth; }
+        body { background-color: #F9FAFB; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; color: #374151; }
+        .view-hidden { display: none !important; }
+        .view-visible { display: flex !important; } /* Flex por defecto para vistas principales */
+
+        #pfp-selector { width: 40px; height: 40px; border-radius: 50%; background-color: #E5E7EB; background-size: cover; background-position: center; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        #pfp-selector:hover { border-color: #0EA5E9; }
+        #pfp-selector svg { color: #9CA3AF; width: 20px; height: 20px; transition: opacity 0.2s ease; }
+        #pfp-selector[style*="background-image"] svg { opacity: 0; }
+
+        .CodeMirror { border: 1px solid #D1D5DB; border-radius: 0 0 0.75rem 0.75rem; height: auto; min-height: 450px; font-size: 14px; line-height: 1.6; flex-grow: 1; }
+        .CodeMirror-placeholder { color: #9CA3AF !important; }
+        .CodeMirror-activeline-background { background-color: rgba(255, 255, 255, 0.08) !important; }
+
+        #editor-toolbar { background-color: #F3F4F6; border: 1px solid #D1D5DB; border-bottom: none; padding: 6px 10px; border-radius: 0.75rem 0.75rem 0 0; display: flex; gap: 6px; flex-wrap: wrap; }
+        #editor-toolbar button { background-color: #fff; border: 1px solid #D1D5DB; padding: 5px; border-radius: 6px; cursor: pointer; color: #4B5563; transition: all 0.15s ease-in-out; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+        #editor-toolbar button:hover { background-color: #E0F2FE; border-color: #7DD3FC; color: #0369A1; }
+        #editor-toolbar button:active { background-color: #BAE6FD; box-shadow: none; transform: translateY(1px); }
+        #editor-toolbar button svg { width: 18px; height: 18px; display: block; }
+        #editor-toolbar .toolbar-separator { width: 1px; background-color: #D1D5DB; margin: 0 4px; }
+
+        /* Contenido Renderizado - CSS Explícito para espaciado (igual v4) */
+        .rendered-content { background-color: white; padding: 1.5rem 2rem; border-radius: 0.75rem; border: 1px solid #E5E7EB; box-shadow: var(--tw-shadow-fluffy); overflow-y: auto; max-height: 75vh; font-size: 16px; line-height: 1.7; color: #374151; }
+        .rendered-content > :first-child { margin-top: 0 !important; }
+        .rendered-content > :last-child { margin-bottom: 0 !important; }
+        .rendered-content h1, .rendered-content h2, .rendered-content h3, .rendered-content h4, .rendered-content h5, .rendered-content h6, .rendered-content p, .rendered-content ul, .rendered-content ol, .rendered-content blockquote, .rendered-content pre, .rendered-content hr, .rendered-content table, .rendered-content img, .rendered-content div:not([class]) { margin-bottom: 1.25em; }
+        .rendered-content h1 { font-size: 2.25em; font-weight: 700; color: #111827; margin-top: 0.5em; border-bottom: 1px solid #E5E7EB; padding-bottom: 0.4em; }
+        .rendered-content h2 { font-size: 1.8em; font-weight: 600; color: #1F2937; margin-top: 1.5em; border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
+        .rendered-content h3 { font-size: 1.4em; font-weight: 600; color: #1F2937; margin-top: 1.5em; }
+        .rendered-content h4 { font-size: 1.2em; font-weight: 600; color: #374151; margin-top: 1.5em; }
+        .rendered-content a { color: #0284C7; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; transition: color 0.2s; }
+        .rendered-content a:hover { color: #0369A1; }
+        .rendered-content strong { font-weight: 600; color: #1F2937; }
+        .rendered-content em { font-style: italic; }
+        .rendered-content ul, .rendered-content ol { padding-left: 1.8em; }
+        .rendered-content li { margin-bottom: 0.5em; }
+        .rendered-content blockquote { border-left: 4px solid #0EA5E9; padding-left: 1em; margin-left: 0; color: #4B5563; font-style: italic; }
+        .rendered-content hr { border: none; border-top: 1px solid #E5E7EB; }
+        .rendered-content pre { background-color: #1f2937 !important; color: #f3f4f6 !important; border-radius: 0.5rem; padding: 1em; overflow-x: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); position: relative; }
+        .rendered-content pre code[class*="language-"] { font-family: 'ui-monospace', 'SFMono-Regular', Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 14px; line-height: 1.6; background: none !important; color: inherit !important; text-shadow: none !important; padding: 0 !important; margin: 0 !important; }
+        .rendered-content code:not(pre > code) { background-color: #E5E7EB; color: #B91C1C; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; font-family: 'ui-monospace', Menlo, Monaco, Consolas, monospace; }
+        .rendered-content img { max-width: 100%; height: auto; border-radius: 0.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+        .rendered-content table { width: 100%; border-collapse: collapse; }
+        .rendered-content th, .rendered-content td { border: 1px solid #D1D5DB; padding: 0.6em 0.8em; text-align: left; }
+        .rendered-content th { background-color: #F3F4F6; font-weight: 600; }
+
+        /* Estilos Wiki Cards y SuBit Cards */
+        .card-base { background-color: white; border-radius: 0.75rem; padding: 1rem 1.25rem; box-shadow: var(--tw-shadow-fluffy); border: 1px solid #F3F4F6; transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; cursor: pointer; }
+        .card-base:hover { transform: translateY(-3px); box-shadow: var(--tw-shadow-fluffy-lg); }
+        .wiki-card {} /* Hereda de card-base */
+        .subit-card { /* Puede tener estilos ligeramente diferentes si quieres */ }
+
+        /* Estilos para el selector de formato y botones (igual v4) */
+        .format-selector label { padding: 6px 12px; border: 1px solid #D1D5DB; border-radius: 6px; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; font-size: 0.9em; background-color: white; }
+        .format-selector input[type="radio"] { display: none; }
+        .format-selector input[type="radio"]:checked + label { background-color: #E0F2FE; border-color: #0EA5E9; color: #0369A1; font-weight: 500; }
+        .button-primary { @apply bg-haibit-blue-500 hover:bg-haibit-blue-600 text-white font-semibold py-2 px-5 rounded-lg transition duration-150 ease-in-out shadow-sm hover:shadow-md text-sm; }
+        .button-secondary { @apply bg-haibit-gray-200 hover:bg-haibit-gray-300 text-haibit-gray-700 font-semibold py-2 px-4 rounded-lg transition duration-150 ease-in-out text-sm; }
+        .button-link { @apply text-haibit-blue-600 hover:text-haibit-blue-700 text-sm inline-flex items-center; }
+
+        /* Estilos específicos para nuevas vistas */
+        .section-title { @apply text-lg font-semibold text-haibit-gray-700 mt-6 mb-3 border-b border-haibit-gray-200 pb-1; }
+
+    </style>
+</head>
+<body class="bg-haibit-gray-50 text-haibit-gray-700 flex flex-col min-h-screen font-sans antialiased">
+
+    <header class="sticky top-0 z-20 bg-white/90 backdrop-blur-md shadow-sm p-3 border-b border-haibit-gray-200">
+        <div class="max-w-6xl mx-auto flex items-center justify-between gap-3 px-4">
+            <a href="/" id="home-link" class="flex items-center gap-2 flex-shrink-0" title="Ir a Inicio Haibit">
+                 <img src="https://i.ibb.co/N2tW1dB2/Screenshot-2025-04-12-11-48-26-043-com-chrome-dev-edit-removebg-preview.png" alt="Haibit Logo" width="32" height="32">
+                 <span class="font-bold text-xl text-haibit-gray-800 hidden sm:inline">Haibit</span>
+            </a>
+
+            <div class="flex-grow flex justify-center">
+                 <button id="subits-link-button" class="button-link font-medium mx-4">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                      Comunidades
+                  </button>
+                 </div>
+
+
+            <div class="flex items-center gap-3 flex-shrink-0">
+                 <button id="new-wiki-button" class="button-primary hidden sm:flex items-center"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Nueva Página
+                </button>
+
+                <div id="pfp-selector" title="Seleccionar Foto de Perfil">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <input type="file" id="pfp-input" accept="image/png, image/jpeg, image/gif, image/webp" class="hidden">
+            </div>
+        </div>
+    </header>
+
+    <div id="app-container" class="flex-grow flex flex-col">
+
+        <div id="subit-list-view" class="view-hidden flex-grow flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full">
+            <div class="flex justify-between items-center mb-6">
+                 <h1 class="text-3xl font-bold text-haibit-gray-900">Comunidades (SuBits)</h1>
+                 <button id="create-subit-button" class="button-primary flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-1.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                      Crear SuBit
+                 </button>
+            </div>
+             <div id="subit-list-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                  </div>
+             <div id="no-subits-message" class="text-center py-10 view-hidden">
+                 <p class="text-haibit-gray-500">No hay comunidades todavía. ¡Crea la primera!</p>
+            </div>
+             </div>
+
+         <div id="create-subit-view" class="view-hidden flex-grow flex flex-col p-4 md:p-6 max-w-2xl mx-auto w-full">
+            <button id="back-to-subit-list-button" class="button-link mb-4 self-start">&lt; Volver a Comunidades</button>
+            <h1 class="text-2xl font-semibold mb-6 text-haibit-gray-800">Crear Nueva Comunidad (SuBit)</h1>
+            <div class="space-y-4">
+                <div>
+                    <label for="subit-name-input" class="block text-sm font-medium text-haibit-gray-700 mb-1">Nombre de la Comunidad *</label>
+                    <input type="text" id="subit-name-input" placeholder="Ej: Exploradores de Backrooms" class="w-full px-3 py-2 border border-haibit-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-haibit-blue-500 focus:border-haibit-blue-500">
+                </div>
+                 <div>
+                    <label for="subit-slug-input" class="block text-sm font-medium text-haibit-gray-700 mb-1">Identificador (URL) *</label>
+                    <input type="text" id="subit-slug-input" placeholder="Ej: backrooms-wiki (solo minúsculas, números, guiones)" class="w-full px-3 py-2 border border-haibit-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-haibit-blue-500 focus:border-haibit-blue-500">
+                     <p class="text-xs text-haibit-gray-500 mt-1">Se usará en la URL: thehaibit.com/#/s/&lt;identificador&gt;</p>
+                </div>
+                 <div>
+                    <label for="subit-description-input" class="block text-sm font-medium text-haibit-gray-700 mb-1">Descripción Breve</label>
+                    <textarea id="subit-description-input" rows="3" placeholder="¿De qué trata esta comunidad?" class="w-full px-3 py-2 border border-haibit-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-haibit-blue-500 focus:border-haibit-blue-500"></textarea>
+                </div>
+                <div>
+                    <label for="subit-logo-input" class="block text-sm font-medium text-haibit-gray-700 mb-1">URL del Logo (Opcional)</label>
+                    <input type="url" id="subit-logo-input" placeholder="https://ejemplo.com/logo.png" class="w-full px-3 py-2 border border-haibit-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-haibit-blue-500 focus:border-haibit-blue-500">
+                </div>
+                <p id="create-subit-message" class="text-red-600 text-sm h-4"></p>
+                <div class="flex justify-end">
+                     <button id="save-subit-button" class="button-primary">Crear Comunidad</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="subit-home-view" class="view-hidden flex-grow flex flex-col p-4 md:p-6 max-w-5xl mx-auto w-full">
+            <div class="mb-6 pb-4 border-b border-haibit-gray-200">
+                 <button id="back-to-subits-from-home-button" class="button-link mb-2 text-xs">&lt; Volver a Comunidades</button>
+                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                     <img id="subit-home-logo" src="" alt="Logo Subit" class="w-16 h-16 rounded-lg object-cover bg-haibit-gray-200 border border-haibit-gray-300 flex-shrink-0">
+                     <div class="flex-grow">
+                        <h1 id="subit-home-name" class="text-3xl font-bold text-haibit-gray-900"></h1>
+                        <p id="subit-home-description" class="text-haibit-gray-600 mt-1"></p>
+                     </div>
+                     <button id="new-page-in-subit-button" class="button-primary flex-shrink-0 self-start sm:self-center">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-1.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                           Nueva Página Aquí
+                      </button>
+                      </div>
+            </div>
+            <div id="subit-pages-container">
+                <p class="text-center text-haibit-gray-500 mt-10">Cargando páginas...</p>
+            </div>
+            <div id="no-pages-in-subit-message" class="text-center py-10 view-hidden">
+                <p class="text-haibit-gray-500">Esta comunidad aún no tiene páginas. ¡Crea la primera!</p>
+            </div>
+             </div>
+
+        <div id="editor-view" class="view-hidden flex-grow flex flex-col p-4 md:p-6 max-w-7xl mx-auto w-full">
+            <div class="mb-4 flex flex-wrap justify-between items-center gap-4">
+                 <button id="back-from-editor-button" class="button-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    Volver
+                </button>
+                 <h2 id="editor-title" class="text-xl font-semibold text-haibit-gray-800 flex-grow text-center md:text-left">Crear Nueva Página</h2>
+                <div class="format-selector flex gap-2 flex-shrink-0"> <input type="radio" id="format-markdown" name="contentFormat" value="markdown" checked> <label for="format-markdown">Markdown</label> <input type="radio" id="format-html" name="contentFormat" value="html"> <label for="format-html">HTML</label> </div>
+            </div>
+
+             <input type="text" id="wiki-title-input" placeholder="Título de la Página" class="w-full px-4 py-2.5 mb-2 border border-haibit-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-haibit-blue-500 focus:border-transparent text-base shadow-inner"/>
+             <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4 text-sm">
+                  <input type="text" id="wiki-slug-input" placeholder="identificador-url *" class="px-3 py-1.5 border border-haibit-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-haibit-blue-500">
+                  <input type="text" id="wiki-section-input" placeholder="seccion-opcional (ej: niveles)" class="px-3 py-1.5 border border-haibit-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-haibit-blue-500">
+                  <input type="text" id="wiki-subsection-input" placeholder="subseccion-opcional (ej: nivel-1)" class="px-3 py-1.5 border border-haibit-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-haibit-blue-500">
+             </div>
+             <p class="text-xs text-haibit-gray-500 mb-4 -mt-3">El identificador URL y las claves de sección deben usar solo minúsculas, números y guiones.</p>
+
+
+            <div class="flex flex-col md:flex-row flex-grow gap-6 min-h-[60vh]">
+                <div class="flex flex-col md:w-1/2">
+                    <label class="text-sm font-medium mb-1 text-haibit-gray-600">Contenido (<span id="current-format-label">Markdown</span>)</label>
+                    <div id="editor-toolbar"> <button id="toolbar-bold" title="Negrita"> <svg viewBox="0 0 24 24"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path></svg> </button>
+                         <button id="toolbar-italic" title="Cursiva"> <svg viewBox="0 0 24 24"><line x1="19" y1="4" x2="10" y2="4"></line><line x1="14" y1="20" x2="5" y2="20"></line><line x1="15" y1="4" x2="9" y2="20"></line></svg> </button>
+                         <div class="toolbar-separator"></div> <button id="toolbar-h1" title="H1">H1</button> <button id="toolbar-h2" title="H2">H2</button> <button id="toolbar-h3" title="H3">H3</button>
+                         <div class="toolbar-separator"></div> <button id="toolbar-link" title="Enlace"> <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71 M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg> </button>
+                         <button id="toolbar-image" title="Imagen"> <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg> </button>
+                         <div class="toolbar-separator"></div> <button id="toolbar-list-ul" title="Lista"> <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> </button>
+                         <button id="toolbar-quote" title="Cita"> <svg viewBox="0 0 24 24"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h3v10M17 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h3v10"></path></svg> </button>
+                         <button id="toolbar-code" title="Código"> <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg> </button>
+                         <button id="toolbar-hr" title="Línea Horiz."> <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line></svg> </button>
+                     </div>
+                    <div id="codemirror-editor" class="flex-grow h-full"></div>
+                    <textarea id="wiki-content-input-hidden" class="hidden"></textarea>
+                </div>
+                <div class="flex flex-col md:w-1/2">
+                     <label class="text-sm font-medium mb-1 text-haibit-gray-600">Vista Previa</label>
+                     <div id="live-preview" class="rendered-content flex-grow"></div>
+                </div>
+            </div>
+
+             <p id="editor-message" class="text-red-600 text-sm mt-3 h-4"></p>
+            <div class="flex justify-between items-center mt-5">
+                <button id="cancel-edit-button" class="button-secondary"> Cancelar </button>
+                <button id="save-wiki-button" class="button-primary"> Guardar Página </button>
+            </div>
+        </div>
+
+        <div id="wiki-page-detail-view" class="view-hidden flex-grow flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full">
+             <div class="mb-4 flex justify-between items-center">
+                  <button id="back-to-subit-from-page-button" class="button-link">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                      Volver a <span id="back-to-subit-name">Comunidad</span>
+                 </button>
+                 </div>
+             <div id="wiki-detail-header" class="mb-5 flex items-center gap-3 border-b border-haibit-gray-200 pb-4">
+                 <img id="detail-pfp" src="" alt=" " class="w-10 h-10 rounded-full object-cover bg-haibit-gray-200 border border-haibit-gray-300">
+                 <h1 id="wiki-detail-title" class="text-3xl font-bold text-haibit-gray-900"></h1>
+            </div>
+             <div id="wiki-detail-breadcrumbs" class="text-xs text-haibit-gray-500 mb-4"></div>
+             <div id="wiki-detail-content" class="rendered-content mt-[-1px]"></div>
+             <p id="wiki-detail-meta" class="text-xs text-haibit-gray-400 mt-4 text-right"></p>
+        </div>
+
+
+        <div id="loading-view" class="view-visible flex-grow flex items-center justify-center">
+            <svg class="animate-spin h-8 w-8 text-haibit-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path> </svg>
+        </div>
+
+    </div> <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.0/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/markdown/markdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/continuelist.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/display/placeholder.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/selection/active-line.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/dialog/dialog.min.js"></script>
+
+
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+        // --- Configuración ---
+        const SUPABASE_URL = 'https://yywfdkgijspqfrhawaqs.supabase.co'; // ⚠️ ¡REEMPLAZAR!
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5d2Zka2dpanNwcWZyaGF3YXFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ0NzI3ODAsImV4cCI6MjA2MDA0ODc4MH0.QpnFpGVxCrBv-GyCZVjruOMpHJc5r5BwYa9iEi7uy_I'; // ⚠️ ¡REEMPLAZAR!
+        const PFP_BUCKET_NAME = 'pfps';
+        const WIKIS_PER_PAGE = 12; // Más por página para SuBits?
+
+        // --- Validar Configuración ---
+        if (!SUPABASE_URL || SUPABASE_URL === 'TU_SUPABASE_URL_AQUI' || !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === 'TU_SUPABASE_ANON_KEY_AQUI') {
+            showError("Error de Configuración: Revisa las claves de Supabase.");
+            throw new Error("Supabase configuration missing.");
+        }
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // --- Selectores DOM (Ampliado para v5) ---
+        const loadingView = document.getElementById('loading-view');
+        const subitListView = document.getElementById('subit-list-view');
+        const createSubitView = document.getElementById('create-subit-view');
+        const subitHomeView = document.getElementById('subit-home-view');
+        const editorView = document.getElementById('editor-view'); // Reutilizado para páginas
+        const wikiPageDetailView = document.getElementById('wiki-page-detail-view'); // Vista detalle página
+
+        // Elementos específicos
+        const homeLink = document.getElementById('home-link');
+        const subitsLinkButton = document.getElementById('subits-link-button');
+        const pfpSelector = document.getElementById('pfp-selector');
+        const pfpInput = document.getElementById('pfp-input');
+        const newWikiButton = document.getElementById('new-wiki-button'); // Botón global (quizás quitar/cambiar?)
+
+        // Vista Lista SuBits
+        const createSubitButton = document.getElementById('create-subit-button');
+        const subitListContainer = document.getElementById('subit-list-container');
+        const noSubitsMessage = document.getElementById('no-subits-message');
+
+         // Vista Crear SuBit
+         const backToSubitListButton = document.getElementById('back-to-subit-list-button');
+         const subitNameInput = document.getElementById('subit-name-input');
+         const subitSlugInput = document.getElementById('subit-slug-input');
+         const subitDescriptionInput = document.getElementById('subit-description-input');
+         const subitLogoInput = document.getElementById('subit-logo-input');
+         const createSubitMessage = document.getElementById('create-subit-message');
+         const saveSubitButton = document.getElementById('save-subit-button');
+
+        // Vista Home SuBit
+        const backToSubitsFromHomeButton = document.getElementById('back-to-subits-from-home-button');
+        const subitHomeLogo = document.getElementById('subit-home-logo');
+        const subitHomeName = document.getElementById('subit-home-name');
+        const subitHomeDescription = document.getElementById('subit-home-description');
+        const newPageInSubitButton = document.getElementById('new-page-in-subit-button');
+        const subitPagesContainer = document.getElementById('subit-pages-container');
+        const noPagesInSubitMessage = document.getElementById('no-pages-in-subit-message');
+
+        // Vista Editor (campos nuevos)
+        const backFromEditorButton = document.getElementById('back-from-editor-button');
+        const editorTitle = document.getElementById('editor-title');
+        const formatSelectors = document.querySelectorAll('input[name="contentFormat"]');
+        const currentFormatLabel = document.getElementById('current-format-label');
+        const wikiTitleInput = document.getElementById('wiki-title-input');
+        const wikiSlugInput = document.getElementById('wiki-slug-input'); // Nuevo
+        const wikiSectionInput = document.getElementById('wiki-section-input'); // Nuevo
+        const wikiSubsectionInput = document.getElementById('wiki-subsection-input'); // Nuevo
+        const codeMirrorEditorDiv = document.getElementById('codemirror-editor');
+        const livePreview = document.getElementById('live-preview');
+        const editorMessage = document.getElementById('editor-message');
+        const cancelEditButton = document.getElementById('cancel-edit-button');
+        const saveWikiButton = document.getElementById('save-wiki-button'); // Ahora guarda wiki_pages
+        const editorToolbar = document.getElementById('editor-toolbar');
+
+        // Vista Detalle Página
+        const backToSubitFromPageButton = document.getElementById('back-to-subit-from-page-button');
+        const backToSubitName = document.getElementById('back-to-subit-name');
+        const detailPfp = document.getElementById('detail-pfp'); // Reutilizado
+        const wikiDetailTitle = document.getElementById('wiki-detail-title'); // Reutilizado
+        const wikiDetailBreadcrumbs = document.getElementById('wiki-detail-breadcrumbs'); // Nuevo
+        const wikiDetailContent = document.getElementById('wiki-detail-content'); // Reutilizado
+        const wikiDetailMeta = document.getElementById('wiki-detail-meta'); // Reutilizado
+
+        // --- Estado de la Aplicación ---
+        let currentView = 'loading';
+        let subits = []; // Lista de comunidades
+        let currentSubit = null; // Info del SuBit activo
+        let currentSubitPages = []; // Páginas del SuBit activo
+        let currentPageData = null; // Datos de la página activa en detalle
+        // let currentPage = 0; // Paginación (menos relevante ahora, depende de la vista)
+        let isLoading = false;
+        let currentPfpUrl = null;
+        // let searchDebounceTimer; // Búsqueda menos prioritaria en v5 inicial
+        let codeMirrorInstance = null;
+        let currentContentType = 'markdown';
+        let editorContext = { // Para saber a dónde volver desde el editor
+             returnHash: '#/subits',
+             subitId: null
+         };
+
+        // --- Configuración DOMPurify ---
+        const domPurifyConfig = { /* ... (igual que v4, con ADD_TAGS: ['style']) ... */ USE_PROFILES: { html: true }, ADD_TAGS: ['style'], KEEP_CONTENT: true, };
+        console.warn("DOMPurify configurado para PERMITIR etiquetas <style>. ¡Revisar seguridad!");
+
+        // --- Inicialización CodeMirror (igual que v4) ---
+        function initializeCodeMirror() { /* ... (igual que v4, con placeholder y active line) ... */ if(!codeMirrorInstance){codeMirrorInstance=CodeMirror(codeMirrorEditorDiv,{mode:currentContentType==='html'?'htmlmixed':'markdown',theme:'material-darker',lineNumbers:true,lineWrapping:true,tabSize:4,indentUnit:4,autoCloseBrackets:true,matchBrackets:true,styleActiveLine:true,placeholder:"Escribe aquí tu contenido...",extraKeys:{"Enter":"newlineAndIndentContinueMarkdownList","Ctrl-B":()=>applyMarkdownFormatting('**'),"Cmd-B":()=>applyMarkdownFormatting('**'),"Ctrl-I":()=>applyMarkdownFormatting('*'),"Cmd-I":()=>applyMarkdownFormatting('*'),"Ctrl-K":insertMarkdownLink,"Cmd-K":insertMarkdownLink}});codeMirrorInstance.on('change',debounce(updatePreview,300));}else{const currentMode=currentContentType==='html'?'htmlmixed':'markdown';if(codeMirrorInstance.getOption('mode')!==currentMode){codeMirrorInstance.setOption('mode',currentMode);}} setTimeout(()=>codeMirrorInstance?.refresh(),50);}
+
+        // --- Funciones de Utilidad ---
+        function showError(message, isUserFacing = true) { console.error(message); if(isUserFacing){ alert(message); } }
+        function debounce(func, wait) { let timeout; return function executedFunction(...args){ const later = () => { clearTimeout(timeout); func(...args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; }
+
+        // Slugify simple
+         function slugify(text) {
+             if (!text) return '';
+             return text.toString().toLowerCase().trim()
+                 .normalize('NFD') // separate accent from letter
+                 .replace(/[\u0300-\u036f]/g, '') // remove all separated accents
+                 .replace(/\s+/g, '-') // replace spaces with -
+                 .replace(/&/g, '-and-') // replace & with 'and'
+                 .replace(/[^\w\-]+/g, '') // remove all non-word chars except -
+                 .replace(/\-\-+/g, '-') // replace multiple - with single -
+                 .replace(/^-+/, "") // Trim - from start of text
+                 .replace(/-+$/, ""); // Trim - from end of text
+         }
+
+        // --- Sistema de Navegación / Enrutamiento (Hash Based) ---
+        function navigateTo(hash) {
+            window.location.hash = hash;
+        }
+
+        async function handleRouteChange() {
+            const hash = window.location.hash || '#/'; // Default a una vista (ej: lista subits)
+            console.log("Route change:", hash); // Para depurar
+
+             // Ocultar todas las vistas excepto loading inicialmente
+             [subitListView, createSubitView, subitHomeView, editorView, wikiPageDetailView].forEach(v => v.classList.replace('view-visible', 'view-hidden'));
+             loadingView.classList.replace('view-hidden', 'view-visible');
+             isLoading = true; // Asumir carga
+
+             try {
+                if (hash === '#/' || hash === '#/subits') {
+                    await loadSubits();
+                    showView('subit-list-view');
+                } else if (hash === '#/new-subit') {
+                     resetCreateSubitForm();
+                    showView('create-subit-view');
+                } else if (hash.startsWith('#/s/')) {
+                    const parts = hash.substring(4).split('/'); // Ej: ['subit-slug', 'p', 'page-slug'] o ['subit-slug']
+                    const subitSlug = parts[0];
+
+                    if (parts.length === 1) { // Vista Home del Subit
+                        await loadSubitData(subitSlug);
+                        showView('subit-home-view');
+                    } else if (parts.length === 3 && parts[1] === 'p') { // Vista Detalle Página
+                        const pageSlug = parts[2];
+                        await loadWikiPageDetail(subitSlug, pageSlug);
+                        showView('wiki-page-detail-view');
+                    } else if (parts.length === 2 && parts[1] === 'new-page') { // Vista Editor para nueva página en Subit
+                        await loadSubitForEditor(subitSlug); // Carga datos básicos del subit
+                        if (currentSubit) {
+                             resetEditorForm(currentSubit.id, `#/s/${currentSubit.slug}`);
+                             showView('editor-view');
+                        } else { navigateTo('#/subits'); } // Fallback si el subit no existe
+                    }
+                     else {
+                        console.warn("Ruta no reconocida:", hash);
+                        navigateTo('#/subits'); // Ir a lista si la ruta es inválida
+                    }
+                } else {
+                     console.warn("Ruta base no reconocida:", hash);
+                     navigateTo('#/subits'); // Ir a lista por defecto
+                 }
+            } catch (error) {
+                 showError("Error al cargar la vista: " + error.message);
+                 navigateTo('#/subits'); // Fallback en caso de error
+             } finally {
+                 isLoading = false;
+                 loadingView.classList.replace('view-visible', 'view-hidden');
+             }
+        }
+        
+        // --- Funciones PFP (FALTANTES EN LA RESPUESTA ANTERIOR) ---
+
+        /**
+         * Maneja la selección de un archivo PFP, lo sube a Supabase Storage
+         * y guarda la URL pública en localStorage.
+         */
+        async function handlePfpSelection(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validación básica (repetida del Storage Policy para UX)
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            if (!allowedTypes.includes(file.type)) {
+                showError("Tipo de archivo no permitido. Usa PNG, JPG, GIF o WEBP.");
+                pfpInput.value = ''; // Limpiar input
+                return;
+            }
+            if (file.size > maxSize) {
+                showError("El archivo es demasiado grande (máx 5MB).");
+                pfpInput.value = ''; // Limpiar input
+                return;
+            }
+
+             // Feedback visual de carga
+            pfpSelector.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%239CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>')`; // Spinner
+
+            try {
+                // Crear nombre único para evitar colisiones
+                const fileName = `${Date.now()}_${slugify(file.name.split('.').slice(0, -1).join('_'))}.${file.name.split('.').pop()}`;
+                const filePath = `${fileName}`; // Guardar en la raíz del bucket
+
+                // Subir a Supabase Storage
+                const { data, error } = await supabase.storage
+                    .from(PFP_BUCKET_NAME)
+                    .upload(filePath, file, {
+                        cacheControl: '3600', // Cache por 1 hora
+                        upsert: false // No sobrescribir
+                    });
+
+                if (error) throw error;
+
+                // Obtener la URL pública
+                const { data: publicUrlData } = supabase.storage
+                    .from(PFP_BUCKET_NAME)
+                    .getPublicUrl(filePath);
+
+                if (!publicUrlData || !publicUrlData.publicUrl) {
+                    throw new Error("No se pudo obtener la URL pública después de subir.");
+                }
+
+                currentPfpUrl = publicUrlData.publicUrl;
+                localStorage.setItem('haibit_pfp_url', currentPfpUrl); // Guardar en localStorage
+                updatePfpDisplay(currentPfpUrl); // Actualizar UI
+
+                console.log("PFP actualizada:", currentPfpUrl);
+
+            } catch (error) {
+                console.error('Error subiendo PFP:', error);
+                showError(`Error al subir la imagen: ${error.message}`);
+                // Revertir visualmente a la PFP anterior si falla la subida
+                updatePfpDisplay(localStorage.getItem('haibit_pfp_url'));
+            } finally {
+                 // Limpiar el input file para permitir seleccionar el mismo archivo de nuevo si falló
+                 pfpInput.value = '';
+            }
+        }
+
+        /**
+         * Actualiza el estilo del PFP selector para mostrar la imagen o el icono placeholder.
+         */
+        function updatePfpDisplay(url) {
+            if (url && typeof url === 'string' && url.startsWith('http')) {
+                pfpSelector.style.backgroundImage = `url('${url}')`;
+            } else {
+                pfpSelector.style.backgroundImage = 'none'; // Quita la imagen si no hay URL válida
+            }
+        }
+
+        /**
+         * Carga la URL de la PFP guardada en localStorage al iniciar la app.
+         */
+        function loadPfpFromStorage() {
+            const savedUrl = localStorage.getItem('haibit_pfp_url');
+            if (savedUrl) {
+                currentPfpUrl = savedUrl;
+                updatePfpDisplay(currentPfpUrl);
+                console.log("PFP cargada desde localStorage:", savedUrl);
+            } else {
+                console.log("No se encontró PFP en localStorage.");
+            }
+        }
+        
+        // --- Funciones Auxiliares de UI (FALTANTES EN RESPUESTA ANTERIOR) ---
+
+        /**
+         * Muestra u oculta el mensaje "No hay comunidades".
+         * @param {boolean} show - True para mostrar, false para ocultar.
+         */
+        function updateNoSubitsMessage(show) {
+            if (!noSubitsMessage) return; // Asegurarse que el elemento existe
+            if (show) {
+                noSubitsMessage.classList.replace('view-hidden', 'view-visible');
+            } else {
+                noSubitsMessage.classList.replace('view-visible', 'view-hidden');
+            }
+        }
+
+        /**
+         * Muestra u oculta el mensaje "Esta comunidad aún no tiene páginas".
+         * @param {boolean} show - True para mostrar, false para ocultar.
+         */
+        function updateNoPagesInSubitMessage(show) {
+             if (!noPagesInSubitMessage) return; // Asegurarse que el elemento existe
+             if (show) {
+                noPagesInSubitMessage.classList.replace('view-hidden', 'view-visible');
+            } else {
+                noPagesInSubitMessage.classList.replace('view-visible', 'view-hidden');
+            }
+        }
+
+        /**
+         * Muestra u oculta el botón "Cargar Más" (si se implementa paginación).
+         * @param {boolean} show - True para mostrar, false para ocultar.
+         */
+        function updateLoadMoreButton(show) {
+            // Nota: La paginación no está completamente implementada en la v5 actual,
+            // pero dejamos la función lista por si acaso se usa o añade después.
+            const loadMoreBtn = document.getElementById('load-more-button'); // Buscar el botón
+            if (!loadMoreBtn) {
+                console.warn("Elemento #load-more-button no encontrado.");
+                return;
+            }
+            if (show) {
+                loadMoreBtn.classList.replace('view-hidden', 'view-visible');
+            } else {
+                loadMoreBtn.classList.replace('view-visible', 'view-hidden');
+            }
+            // Resetear estado del botón (esto podría necesitar lógica más compleja si se usa)
+            loadMoreBtn.disabled = false;
+            loadMoreBtn.textContent = 'Cargar Más';
+        }
+
+        function showView(viewId) {
+             // Solo mostrar la vista solicitada, ocultar las demás (incluyendo loading)
+             [loadingView, subitListView, createSubitView, subitHomeView, editorView, wikiPageDetailView].forEach(v => {
+                 if (v.id === viewId) {
+                     v.classList.replace('view-hidden', 'view-visible');
+                 } else {
+                     v.classList.replace('view-visible', 'view-hidden');
+                 }
+             });
+             currentView = viewId.replace('-view', '');
+             window.scrollTo(0, 0);
+             if (viewId === 'editor-view') {
+                 initializeCodeMirror(); // Asegurar/refrescar CM
+             }
+        }
+
+        // --- Carga de Datos ---
+        async function loadSubits() {
+            console.log("Loading subits...");
+            try {
+                const { data, error } = await supabase
+                    .from('subits')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                if (error) throw error;
+                subits = data || [];
+                renderSubitList(subits);
+                updateNoSubitsMessage(subits.length === 0);
+            } catch (error) {
+                showError("Error al cargar comunidades: " + error.message);
+                subitListContainer.innerHTML = `<p class="text-red-500">Error al cargar.</p>`;
+                updateNoSubitsMessage(true);
+            }
+        }
+
+         async function loadSubitData(subitSlug) {
+             console.log("Loading data for subit:", subitSlug);
+             // 1. Cargar datos del Subit
+             const { data: subitData, error: subitError } = await supabase
+                 .from('subits')
+                 .select('*')
+                 .eq('slug', subitSlug)
+                 .maybeSingle(); // Solo uno o ninguno
+
+             if (subitError) throw subitError;
+             if (!subitData) throw new Error(`Comunidad con slug "${subitSlug}" no encontrada.`);
+
+             currentSubit = subitData;
+
+             // 2. Cargar páginas de este Subit
+              const { data: pagesData, error: pagesError } = await supabase
+                 .from('wiki_pages')
+                 .select('*')
+                 .eq('subit_id', currentSubit.id)
+                 .order('section_key', { nullsfirst: true }) // Agrupar por sección
+                 .order('subsection_key', { nullsfirst: true }) // Luego subsección
+                 .order('title', { ascending: true }); // Luego título
+
+             if (pagesError) throw pagesError;
+             currentSubitPages = pagesData || [];
+
+             renderSubitHomePage(currentSubit, currentSubitPages);
+             updateNoPagesInSubitMessage(currentSubitPages.length === 0);
+         }
+
+          async function loadWikiPageDetail(subitSlug, pageSlug) {
+              console.log(`Loading page: ${pageSlug} in subit: ${subitSlug}`);
+             // 1. Necesitamos el ID del subit primero
+              const { data: subitData, error: subitError } = await supabase
+                 .from('subits')
+                 .select('id, name, slug') // Solo lo necesario
+                 .eq('slug', subitSlug)
+                 .maybeSingle();
+
+              if (subitError) throw subitError;
+              if (!subitData) throw new Error(`Subit "${subitSlug}" no encontrado.`);
+
+             // 2. Cargar la página específica usando subit_id y pageSlug
+              const { data: pageData, error: pageError } = await supabase
+                 .from('wiki_pages')
+                 .select('*')
+                 .eq('subit_id', subitData.id)
+                 .eq('slug', pageSlug)
+                 .maybeSingle();
+
+              if (pageError) throw pageError;
+              if (!pageData) throw new Error(`Página "${pageSlug}" no encontrada en Subit "${subitSlug}".`);
+
+              currentPageData = pageData;
+              renderWikiPageDetail(currentPageData, subitData); // Pasar datos del subit también
+         }
+
+          // Función para cargar solo info básica del Subit antes de ir al editor
+          async function loadSubitForEditor(subitSlug) {
+              const { data: subitData, error: subitError } = await supabase
+                 .from('subits')
+                 .select('id, name, slug')
+                 .eq('slug', subitSlug)
+                 .maybeSingle();
+              if (subitError) throw subitError;
+              currentSubit = subitData; // Guardar en estado global para el editor
+          }
+          
+          // --- Editor y Renderizado ---
+
+        /**
+         * Actualiza el panel de vista previa (#live-preview) obteniendo
+         * el contenido actual del editor CodeMirror y llamando a renderContent.
+         */
+        function updatePreview() {
+            // Asegurarse que CodeMirror y el div de preview existen
+            if (!codeMirrorInstance || !livePreview) {
+                console.warn("Intentando actualizar preview, pero CodeMirror o el div no están listos.");
+                return;
+            }
+            try {
+                // Obtener el contenido actual del editor
+                const content = codeMirrorInstance.getValue();
+                // Llamar a la función principal de renderizado, pasándole el contenido,
+                // el tipo de contenido actual (Markdown/HTML) y el elemento donde mostrarlo.
+                renderContent(content, currentContentType, livePreview);
+            } catch (error) {
+                console.error("Error en updatePreview:", error);
+                // Mostrar un error en la vista previa si algo falla
+                livePreview.innerHTML = `<p class='text-red-500'>Error al generar vista previa.</p>`;
+            }
+        }
+
+        // La función renderContent(content, contentType, targetElement) debería estar definida ya...
+        // function renderContent(content, contentType, targetElement) { ... }
+
+        // La función initializeCodeMirror() también debería estar definida...
+        // function initializeCodeMirror() { ... }
+
+
+        // --- Renderizado de Vistas ---
+        function renderSubitList(subitsData) {
+            subitListContainer.innerHTML = ''; // Limpiar
+             if (subitsData.length === 0) return; // Mensaje "no subits" se controla fuera
+
+            subitsData.forEach(subit => {
+                 const card = document.createElement('a'); // Hacer la tarjeta un enlace
+                 card.href = `#/s/${subit.slug}`;
+                 card.className = 'subit-card card-base block'; // block para que el enlace ocupe todo
+                 card.setAttribute('data-slug', subit.slug);
+
+                 const logoImg = subit.logo_url
+                     ? `<img src="${subit.logo_url}" alt="Logo ${subit.name}" class="w-12 h-12 rounded-md object-cover border border-haibit-gray-200 flex-shrink-0">`
+                     : `<div class="w-12 h-12 rounded-md bg-haibit-gray-200 flex items-center justify-center flex-shrink-0"> <span class="text-xl font-bold text-haibit-gray-500">${subit.name.charAt(0).toUpperCase()}</span> </div>`; // Inicial si no hay logo
+
+                 card.innerHTML = `
+                     <div class="flex items-center gap-3">
+                         ${logoImg}
+                         <div class="overflow-hidden">
+                            <h3 class="font-semibold text-haibit-gray-800 truncate">${subit.name}</h3>
+                             <p class="text-xs text-haibit-gray-500">/s/${subit.slug}</p>
+                         </div>
+                     </div>
+                     <p class="text-sm text-haibit-gray-600 mt-2 line-clamp-2">${subit.description || 'Sin descripción.'}</p>
+                 `;
+                 // El evento de navegación se maneja por el hashchange global
+                 subitListContainer.appendChild(card);
+            });
+        }
+
+         function renderSubitHomePage(subitData, pagesData) {
+             // Llenar cabecera del Subit
+             subitHomeLogo.src = subitData.logo_url || ''; // Vacío si no hay logo
+             subitHomeLogo.alt = `Logo ${subitData.name}`;
+             subitHomeLogo.style.display = subitData.logo_url ? 'block' : 'none'; // Ocultar si no hay logo
+             subitHomeName.textContent = subitData.name;
+             subitHomeDescription.textContent = subitData.description || '';
+             // Configurar botón "Nueva Página Aquí"
+              newPageInSubitButton.setAttribute('data-subit-slug', subitData.slug);
+              
+
+
+             // Agrupar páginas por sección y subsección
+             subitPagesContainer.innerHTML = ''; // Limpiar antes de renderizar
+             if (pagesData.length === 0) return; // Mensaje "no pages" se controla fuera
+
+             const groupedPages = pagesData.reduce((acc, page) => {
+                 const section = page.section_key || 'general'; // Grupo por defecto
+                 const subsection = page.subsection_key || '_root'; // Subgrupo por defecto dentro de sección
+                 if (!acc[section]) acc[section] = {};
+                 if (!acc[section][subsection]) acc[section][subsection] = [];
+                 acc[section][subsection].push(page);
+                 return acc;
+             }, {});
+
+             // Ordenar secciones (ej. 'general' primero)
+             const sectionOrder = Object.keys(groupedPages).sort((a, b) => {
+                 if (a === 'general') return -1;
+                 if (b === 'general') return 1;
+                 return a.localeCompare(b);
+             });
+
+             sectionOrder.forEach(sectionKey => {
+                 const sectionDiv = document.createElement('div');
+                 sectionDiv.className = 'mb-6';
+
+                 // Título de la Sección (omitir si es 'general' y es la única sección)
+                 if (sectionKey !== 'general' || sectionOrder.length > 1) {
+                     const sectionTitle = document.createElement('h2');
+                     sectionTitle.className = 'section-title capitalize'; // Capitalizar clave para mostrar
+                     sectionTitle.textContent = sectionKey.replace(/-/g, ' ');
+                     sectionDiv.appendChild(sectionTitle);
+                 }
+
+                 const subsectionContainer = document.createElement('div');
+                 subsectionContainer.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'; // Grid para páginas
+
+                 // Ordenar subsecciones ('_root' primero)
+                 const subsectionOrder = Object.keys(groupedPages[sectionKey]).sort((a, b) => {
+                    if (a === '_root') return -1;
+                    if (b === '_root') return 1;
+                    return a.localeCompare(b);
+                 });
+
+                 subsectionOrder.forEach(subsectionKey => {
+                     // Si hay subsecciones explícitas, podrías añadir un subtítulo aquí
+                      if (subsectionKey !== '_root') {
+                          const subSectionTitle = document.createElement('h3');
+                          subSectionTitle.className = 'text-md font-medium text-haibit-gray-600 col-span-full mt-3 mb-2 capitalize'; // Estilo para subtítulo de subsección
+                          subSectionTitle.textContent = subsectionKey.replace(/-/g, ' ');
+                           // Insertar título antes de las tarjetas de esta subsección (ajustar lógica de inserción si es necesario)
+                           // Por simplicidad ahora, lo ponemos antes del loop de páginas
+                           // Nota: Esto rompería el grid si se inserta directamente. Mejor agrupar tarjetas por subsección.
+                           // ¡Simplificación v5!: No mostraremos títulos de subsección explícitos aquí, solo agruparemos visualmente si es necesario o mostraremos todo junto.
+                      }
+
+
+                     groupedPages[sectionKey][subsectionKey].forEach(page => {
+                         const pageLink = document.createElement('a');
+                         pageLink.href = `#/s/${subitData.slug}/p/${page.slug}`;
+                         pageLink.className = 'wiki-card card-base block p-3'; // Más compacto
+                         pageLink.setAttribute('data-page-id', page.id);
+
+                         // Mini PFP del creador de la página
+                          const pfpPage = page.creator_pfp_url
+                            ? `<img src="${page.creator_pfp_url}" alt="PFP" class="w-5 h-5 rounded-full object-cover border border-haibit-gray-200 mr-1.5">`
+                            : `<div class="w-5 h-5 rounded-full bg-haibit-gray-200 mr-1.5"></div>`;
+
+                         pageLink.innerHTML = `
+                             <div class="flex items-center text-sm font-medium text-haibit-gray-800">
+                                 ${pfpPage}
+                                 <span class="truncate">${page.title}</span>
+                             </div>
+                             ${subsectionKey !== '_root' ? `<span class="text-xs text-haibit-blue-600 ml-1">(${subsectionKey.replace(/-/g,' ')})</span>` : ''} `;
+                         subsectionContainer.appendChild(pageLink);
+                     });
+                 }); // Fin loop subsecciones
+
+                 sectionDiv.appendChild(subsectionContainer);
+                 subitPagesContainer.appendChild(sectionDiv);
+             }); // Fin loop secciones
+         }
+
+          function renderWikiPageDetail(pageData, subitData) {
+              // Llenar cabecera
+              wikiDetailTitle.textContent = pageData.title;
+              detailPfp.style.display = pageData.creator_pfp_url ? 'block' : 'none';
+              if(pageData.creator_pfp_url) detailPfp.src = pageData.creator_pfp_url;
+
+              // Configurar botón volver
+               // LÍNEA CORRECTA (guarda el slug en el botón):
+backToSubitFromPageButton.setAttribute('data-subit-slug', subitData.slug);
+               backToSubitName.textContent = subitData.name;
+
+               // Mostrar breadcrumbs (Sección > Subsección)
+               let breadcrumbs = '';
+               if (pageData.section_key) breadcrumbs += `<span class="capitalize">${pageData.section_key.replace(/-/g,' ')}</span>`;
+               if (pageData.subsection_key) breadcrumbs += ` &gt; <span class="capitalize">${pageData.subsection_key.replace(/-/g,' ')}</span>`;
+               wikiDetailBreadcrumbs.innerHTML = breadcrumbs ? `En: ${breadcrumbs}` : '';
+
+
+              // Renderizar contenido principal
+              renderContent(pageData.content, pageData.content_type, wikiDetailContent);
+
+              // Meta info
+              const date = new Date(pageData.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+              const lastUpdate = new Date(pageData.last_updated_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+              wikiDetailMeta.textContent = `Tipo: ${pageData.content_type} | Creado: ${date} ${date !== lastUpdate ? '| Últ. act: ' + lastUpdate : ''}`;
+          }
+
+
+        // --- Formularios y Guardado ---
+         function resetCreateSubitForm() {
+             subitNameInput.value = '';
+             subitSlugInput.value = '';
+             subitDescriptionInput.value = '';
+             subitLogoInput.value = '';
+             createSubitMessage.textContent = '';
+         }
+
+         async function saveSubit() {
+             const name = subitNameInput.value.trim();
+             const slug = slugify(subitSlugInput.value.trim()); // Usar slugify
+             const description = subitDescriptionInput.value.trim();
+             const logo_url = subitLogoInput.value.trim() || null;
+             const creator_pfp_url = localStorage.getItem('haibit_pfp_url') || null;
+
+             createSubitMessage.textContent = ''; // Limpiar mensaje
+
+             // Validaciones básicas
+             if (!name) { createSubitMessage.textContent = "El nombre es obligatorio."; return; }
+             if (!slug || slug.length < 3) { createSubitMessage.textContent = "El identificador URL es obligatorio (mín 3 caracteres, solo letras/números/guiones)."; return; }
+             if (!slug.match(/^[a-z0-9-]+$/)) { createSubitMessage.textContent = "El identificador URL solo puede contener minúsculas, números y guiones."; return; }
+
+             saveSubitButton.disabled = true; saveSubitButton.textContent = 'Creando...';
+
+             try {
+                  // Verificar si el slug ya existe
+                  const { data: existing, error: checkError } = await supabase
+                     .from('subits')
+                     .select('slug')
+                     .eq('slug', slug)
+                     .maybeSingle();
+
+                 if (checkError) throw checkError;
+                 if (existing) {
+                     createSubitMessage.textContent = "Este identificador URL ya está en uso. Elige otro.";
+                     saveSubitButton.disabled = false; saveSubitButton.textContent = 'Crear Comunidad';
+                     return;
+                 }
+
+
+                 // Insertar nuevo Subit
+                 const { data, error } = await supabase
+                     .from('subits')
+                     .insert([{ name, slug, description, logo_url, creator_pfp_url }])
+                     .select()
+                     .single(); // Esperamos un solo resultado
+
+                 if (error) throw error;
+
+                 console.log("Subit creado:", data);
+                 navigateTo(`#/s/${data.slug}`); // Ir a la nueva comunidad
+
+             } catch (error) {
+                 console.error("Error creando Subit:", error);
+                 createSubitMessage.textContent = `Error: ${error.message}`;
+                 saveSubitButton.disabled = false; saveSubitButton.textContent = 'Crear Comunidad';
+             }
+         }
+
+          // Resetear editor para nueva página
+         function resetEditorForm(subitId, returnHash) {
+             wikiTitleInput.value = '';
+             wikiSlugInput.value = ''; // Limpiar slug
+             wikiSectionInput.value = '';
+             wikiSubsectionInput.value = '';
+             if (codeMirrorInstance) codeMirrorInstance.setValue('');
+             editorMessage.textContent = '';
+             livePreview.innerHTML = '';
+             // Configurar contexto del editor
+             editorContext.subitId = subitId;
+             editorContext.returnHash = returnHash;
+             editorTitle.textContent = `Crear Nueva Página en ${currentSubit?.name || 'Comunidad'}`;
+             backFromEditorButton.href = returnHash; // Configurar botón volver
+              // Poner formato por defecto (Markdown)
+             document.getElementById('format-markdown').checked = true;
+             currentContentType = 'markdown';
+             currentFormatLabel.textContent = 'Markdown';
+             if(codeMirrorInstance) codeMirrorInstance.setOption('mode', 'markdown');
+
+         }
+
+         // Generar slug para página al escribir título
+         wikiTitleInput.addEventListener('input', () => {
+             wikiSlugInput.value = slugify(wikiTitleInput.value);
+         });
+
+
+          async function saveWikiPage() {
+             const title = wikiTitleInput.value.trim();
+             const slug = slugify(wikiSlugInput.value.trim()); // Slugificar también
+             const section_key = slugify(wikiSectionInput.value.trim()) || null; // Slug y null si vacío
+             const subsection_key = slugify(wikiSubsectionInput.value.trim()) || null;
+             const content = codeMirrorInstance.getValue();
+             const contentTypeToSave = currentContentType;
+             const pfpToSave = localStorage.getItem('haibit_pfp_url') || null;
+             const subitId = editorContext.subitId;
+
+             editorMessage.textContent = '';
+             if (!title) { editorMessage.textContent = 'El título es obligatorio.'; return; }
+             if (!slug) { editorMessage.textContent = 'El identificador URL (slug) es obligatorio.'; return; }
+             if (!slug.match(/^[a-z0-9-]+$/)) { editorMessage.textContent = "El identificador URL solo puede contener minúsculas, números y guiones."; return; }
+             if (section_key && !section_key.match(/^[a-z0-9-]+$/)) { editorMessage.textContent = "La clave de sección solo puede contener minúsculas, números y guiones."; return; }
+             if (subsection_key && !subsection_key.match(/^[a-z0-9-]+$/)) { editorMessage.textContent = "La clave de subsección solo puede contener minúsculas, números y guiones."; return; }
+             if (content.trim().length <= 20) { editorMessage.textContent = 'El contenido debe tener más de 20 caracteres.'; return; }
+             if (!subitId) { editorMessage.textContent = 'Error: No se pudo determinar la comunidad (Subit ID).'; return; }
+
+             saveWikiButton.disabled = true; saveWikiButton.textContent = 'Guardando...';
+
+             try {
+                 // Verificar si el slug de página ya existe DENTRO de este subit
+                  const { data: existingPage, error: checkPageError } = await supabase
+                     .from('wiki_pages')
+                     .select('slug')
+                     .eq('subit_id', subitId)
+                     .eq('slug', slug)
+                     .maybeSingle();
+
+                  if (checkPageError) throw checkPageError;
+                  if (existingPage) {
+                     editorMessage.textContent = "Este identificador URL ya existe en esta comunidad. Elige otro.";
+                     saveWikiButton.disabled = false; saveWikiButton.textContent = 'Guardar Página';
+                     return;
+                 }
+
+
+                 // Insertar la nueva página
+                 const { data, error } = await supabase.from('wiki_pages').insert([ {
+                     subit_id: subitId,
+                     title: title,
+                     slug: slug,
+                     content: content,
+                     content_type: contentTypeToSave,
+                     creator_pfp_url: pfpToSave,
+                     section_key: section_key,
+                     subsection_key: subsection_key
+                 } ]).select().single();
+
+                 if (error) throw error;
+
+                 console.log('Página guardada:', data);
+                 navigateTo(editorContext.returnHash); // Volver al home del subit
+
+             } catch (error) {
+                 console.error('Error guardando página:', error);
+                 // Manejar error de constraint UNIQUE (subit_id, slug)
+                 if (error.message.includes('wiki_pages_subit_id_slug_key')) {
+                     editorMessage.textContent = `Error: El identificador URL "${slug}" ya existe en esta comunidad.`;
+                 } else {
+                     editorMessage.textContent = `Error al guardar: ${error.message}.`;
+                 }
+             } finally {
+                 saveWikiButton.disabled = false; saveWikiButton.textContent = 'Guardar Página';
+             }
+         }
+
+        // --- PFP/Renderizado (igual v4, excepto `renderContent`) ---
+        function renderContent(content, contentType, targetElement) { /* ... (igual que v4, usa domPurifyConfig) ... */ try{let htmlToRender='';if(contentType==='markdown'){const rawHtml=marked.parse(content||'',{breaks:true,gfm:true,smartypants:true});htmlToRender=DOMPurify.sanitize(rawHtml,{USE_PROFILES:{html:true}});}else if(contentType==='html'){console.warn("Renderizando HTML directo con <style> permitido.");htmlToRender=DOMPurify.sanitize(content||'',domPurifyConfig);}else{htmlToRender=`<pre class="text-haibit-gray-500"><code>Tipo desconocido: ${contentType}\n\n${content.replace(/</g,"&lt;")}</code></pre>`;} targetElement.innerHTML=htmlToRender; if(targetElement.querySelector('pre > code[class*="language-"]')){targetElement.querySelectorAll('pre').forEach(pre=>pre.classList.add('line-numbers'));Prism.highlightAllUnder(targetElement);}}catch(e){console.error(`Error rendering ${contentType}:`,e);targetElement.innerHTML=`<div class='p-4 bg-red-100 text-red-700 border border-red-300 rounded-lg'><strong>Error al procesar (${contentType}):</strong><br><pre>${e.message}</pre></div>`;} }
+
+
+        // --- Acciones Barra Herramientas Editor (igual que v4) ---
+        function applyMarkdownFormatting(prefix, suffix = prefix, cursorOffset = prefix.length) { /* ... (igual v4) ... */ if(!codeMirrorInstance||currentContentType!=='markdown')return; const selection=codeMirrorInstance.getSelection(); if(selection){codeMirrorInstance.replaceSelection(prefix+selection+suffix);} else{const cursor=codeMirrorInstance.getCursor();codeMirrorInstance.replaceRange(prefix+suffix,cursor);codeMirrorInstance.setCursor(cursor.line,cursor.ch+cursorOffset);} codeMirrorInstance.focus(); }
+        function insertMarkdownLinePrefix(prefix) { /* ... (igual v4) ... */ if(!codeMirrorInstance||currentContentType!=='markdown')return; const{line}=codeMirrorInstance.getCursor(); codeMirrorInstance.replaceRange(prefix,{line:line,ch:0}); codeMirrorInstance.focus(); }
+        function insertMarkdownMultilineBlock(startTag, endTag = startTag) { /* ... (igual v4) ... */ if(!codeMirrorInstance||currentContentType!=='markdown')return; const selection=codeMirrorInstance.getSelection(); if(selection){codeMirrorInstance.replaceSelection(`\n${startTag}\n${selection}\n${endTag}\n`);} else{const cursor=codeMirrorInstance.getCursor();codeMirrorInstance.replaceRange(`\n${startTag}\n\n${endTag}\n`,cursor);codeMirrorInstance.setCursor(cursor.line + 2,0);} codeMirrorInstance.focus(); }
+        function insertMarkdownLink() { /* ... (igual v4, usa openDialog) ... */ if(!codeMirrorInstance||currentContentType!=='markdown')return; codeMirrorInstance.openDialog("URL: <input type=text style='width: 90%'>",(url)=>{if(!url){codeMirrorInstance.focus();return;} const selection=codeMirrorInstance.getSelection()||"texto del enlace";codeMirrorInstance.replaceSelection(`[${selection}](${url})`);codeMirrorInstance.focus();},{value:"https://"});}
+        function insertMarkdownImage() { /* ... (igual v4, usa openDialog) ... */ if(!codeMirrorInstance||currentContentType!=='markdown')return; codeMirrorInstance.openDialog("URL Imagen: <input type=text style='width: 90%'>",(url)=>{if(!url){codeMirrorInstance.focus();return;} codeMirrorInstance.openDialog("Texto Alternativo: <input type=text style='width: 90%'>",(alt)=>{codeMirrorInstance.replaceSelection(`![${alt||'imagen'}](${url})`);codeMirrorInstance.focus();},{value:""});},{value:"https://"});}
+
+
+        // --- Event Listeners ---
+        pfpSelector.addEventListener('click', () => pfpInput.click());
+        pfpInput.addEventListener('change', handlePfpSelection);
+
+        // Navegación principal
+        subitsLinkButton.addEventListener('click', () => navigateTo('#/subits'));
+        createSubitButton.addEventListener('click', () => navigateTo('#/new-subit'));
+        backToSubitListButton.addEventListener('click', () => navigateTo('#/subits'));
+        backToSubitsFromHomeButton.addEventListener('click', () => navigateTo('#/subits'));
+        newPageInSubitButton.addEventListener('click', () => {
+    // Obtener el slug del subit que guardamos en el atributo data-subit-slug
+    const slug = newPageInSubitButton.getAttribute('data-subit-slug');
+    if (slug) {
+        // Navegar a la URL del editor para este subit específico
+        navigateTo(`#/s/${slug}/new-page`);
+    } else {
+        // Error o fallback si no se encuentra el slug (no debería pasar si se renderizó bien)
+        console.error("No se encontró data-subit-slug en el botón 'Nueva Página Aquí'.");
+        showError("No se pudo determinar la comunidad para crear la página.");
+        navigateTo('#/subits'); // Ir a la lista como fallback
+    }
+});
+
+backToSubitFromPageButton.addEventListener('click', () => {
+            // Obtener el slug del subit guardado en el atributo data-subit-slug
+            const slug = backToSubitFromPageButton.getAttribute('data-subit-slug');
+            if (slug) {
+                // Navegar a la URL del home del subit
+                navigateTo(`#/s/${slug}`);
+            } else {
+                // Fallback si no se encuentra el slug (raro, pero por seguridad)
+                console.error("No se encontró data-subit-slug en el botón 'Volver a Subit'.");
+                showError("No se pudo determinar a qué comunidad volver.");
+                navigateTo('#/subits'); // Ir a la lista general como fallback
+            }
+        });
+        // Botón Nueva Página en Home de Subit (usa el enlace href)
+        // Los botones de volver en Editor y Detalle Página usan href configurado dinámicamente
+
+        // Botones Crear/Guardar
+         saveSubitButton.addEventListener('click', saveSubit);
+         saveWikiButton.addEventListener('click', saveWikiPage); // Cambiado para nueva función
+
+
+         // Botones Cancelar Editor
+         cancelEditButton.addEventListener('click', () => {
+             // Volver a la URL de retorno configurada (home del subit o lista subits)
+             navigateTo(editorContext.returnHash || '#/subits');
+         });
+
+        // Formato Editor
+        formatSelectors.forEach(radio => { radio.addEventListener('change', (event) => { currentContentType = event.target.value; currentFormatLabel.textContent = currentContentType === 'html' ? 'HTML' : 'Markdown'; if (codeMirrorInstance) { const newMode = currentContentType === 'html' ? 'htmlmixed' : 'markdown'; codeMirrorInstance.setOption("mode", newMode); } updatePreview(); }); });
+
+        // Toolbar Editor
+         editorToolbar.addEventListener('click', (e) => { const button = e.target.closest('button'); if (!button) return; switch (button.id) { case 'toolbar-bold': applyMarkdownFormatting('**'); break; case 'toolbar-italic': applyMarkdownFormatting('*'); break; case 'toolbar-h1': insertMarkdownLinePrefix('# '); break; case 'toolbar-h2': insertMarkdownLinePrefix('## '); break; case 'toolbar-h3': insertMarkdownLinePrefix('### '); break; case 'toolbar-link': insertMarkdownLink(); break; case 'toolbar-image': insertMarkdownImage(); break; case 'toolbar-list-ul': insertMarkdownLinePrefix('* '); break; case 'toolbar-quote': insertMarkdownLinePrefix('> '); break; case 'toolbar-code': insertMarkdownMultilineBlock('```', '```'); break; case 'toolbar-hr': applyMarkdownFormatting('\n---\n\n', '', 0); break; } });
+
+        // --- Enrutador y Arranque ---
+        window.addEventListener('hashchange', handleRouteChange);
+        // Trigger inicial para cargar la vista correcta basada en el hash actual
+        document.addEventListener('DOMContentLoaded', () => {
+             initializeApp();
+             handleRouteChange(); // Cargar ruta inicial
+        });
+
+        function initializeApp() {
+             console.log("Inicializando Haibit v5...");
+             loadPfpFromStorage();
+             // No cargamos nada por defecto aquí, handleRouteChange lo hará
+        }
+
+    </script>
+
+</body>
+</html>
